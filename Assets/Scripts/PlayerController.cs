@@ -1,106 +1,208 @@
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Vitesses")]
     public float walkSpeed = 5f;
-    public float sprintSpeed = 10f;
+    public float sprintSpeed = 10f;    // Vitesse en courant (touche Alt)
+    public float crouchSpeed = 2.5f;   // Vitesse en s'accroupissant (touche Shift)
     public float jumpForce = 5f;
     public float gravity = 9.81f;
-    public float mouseSensitivity = 100f;
 
+    [Header("Hauteurs et Centers")]
+    public float standHeight = 2f;      // Hauteur du CharacterController debout
+    public float crouchHeight = 1f;     // Hauteur du CharacterController accroupi
+    public Vector3 standCenter = new Vector3(0f, 1f, 0f);   // Centre capsule debout
+    public Vector3 crouchCenter = new Vector3(0f, 0.5f, 0f); // Centre capsule accroupi
+
+    [Header("Transition Accroupi/Debout")]
+    [Tooltip("Dur√©e (en secondes) pour la transition accroupi ‚Üî debout.")]
+    public float crouchTransitionTime = 0.3f;
+
+    [Header("Cam√©ra et sensibilit√©")]
+    public float mouseSensitivity = 100f;
+    public Camera playerCamera;
+
+    // Composants
     private CharacterController characterController;
+
+    // D√©placements
     private Vector3 moveDirection = Vector3.zero;
+
+    // √âtats du joueur
+    private bool isCrouching = false;   // Sert pour la vitesse (crouchSpeed)
     private bool isSprinting = false;
 
-    // RÈfÈrence ‡ la camÈra
-    public Camera playerCamera;
+    // Gestion de la transition
+    private bool isTransitioning = false;   // Vrai quand on est en train de modifier la hauteur
+    private float transitionStartTime;      // Moment o√π a d√©but√© la transition
+    private float fromHeight;               // Hauteur de d√©part pour la transition
+    private float toHeight;                 // Hauteur d'arriv√©e (crouch ou stand)
+    private Vector3 fromCenter;             // Center de d√©part
+    private Vector3 toCenter;               // Center d'arriv√©e
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
 
-        // Verrouiller le curseur au centre de l'Ècran
+        // Verrouille le curseur
         Cursor.lockState = CursorLockMode.Locked;
 
-        // S'assurer que la camÈra est assignÈe
+        // Cam√©ra par d√©faut si non assign√©e
         if (playerCamera == null)
         {
             playerCamera = Camera.main;
         }
+
+        // Place le joueur un peu au-dessus du sol
+        Vector3 startPos = transform.position;
+        startPos.y = 1f;
+        transform.position = startPos;
+
+        // Configuration initiale : debout
+        characterController.height = standHeight;
+        characterController.center = standCenter;
     }
 
     void Update()
     {
+        HandleCrouchInput();
+        HandleSprint();
+        UpdateCrouchTransition(); // Anime la hauteur si une transition est en cours
         MovePlayer();
         RotateView();
     }
 
+    /// <summary>
+    /// D√©tecte appui/rel√¢che de la touche Shift pour lancer une transition (accroupi ‚Üî debout).
+    /// </summary>
+    void HandleCrouchInput()
+    {
+        // Si on appuie sur Shift alors qu'on n'est pas accroupi -> transition vers accroupi
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isCrouching)
+        {
+            isCrouching = true;
+            StartCrouchTransition(true);  // Vers accroupi
+        }
+        // Si on rel√¢che Shift alors qu'on est accroupi -> transition vers debout
+        else if (Input.GetKeyUp(KeyCode.LeftShift) && isCrouching)
+        {
+            isCrouching = false;
+            StartCrouchTransition(false); // Vers debout
+        }
+    }
+
+    /// <summary>
+    /// D√©finit isSprinting en fonction de la touche Alt (et du fait qu'on ne soit pas accroupi).
+    /// </summary>
+    void HandleSprint()
+    {
+        isSprinting = Input.GetKey(KeyCode.LeftAlt) && !isCrouching;
+    }
+
+    /// <summary>
+    /// Initialise les param√®tres de la transition (temps, from->to) pour la hauteur et le center.
+    /// </summary>
+    /// <param name="goingDown">true si on descend (accroupi), false si on se rel√®ve</param>
+    void StartCrouchTransition(bool goingDown)
+    {
+        isTransitioning = true;
+        transitionStartTime = Time.time;
+
+        fromHeight = characterController.height;
+        fromCenter = characterController.center;
+
+        toHeight = goingDown ? crouchHeight : standHeight;
+        toCenter = goingDown ? crouchCenter : standCenter;
+    }
+
+    /// <summary>
+    /// Effectue la transition (Lerp) si isTransitioning est vrai, en prenant en compte crouchTransitionTime.
+    /// </summary>
+    void UpdateCrouchTransition()
+    {
+        if (!isTransitioning) return;
+
+        float elapsed = Time.time - transitionStartTime;
+        float t = Mathf.Clamp01(elapsed / crouchTransitionTime);
+
+        // Interpolation fluide
+        float newHeight = Mathf.Lerp(fromHeight, toHeight, t);
+        Vector3 newCenter = Vector3.Lerp(fromCenter, toCenter, t);
+
+        characterController.height = newHeight;
+        characterController.center = newCenter;
+
+        // Transition termin√©e ?
+        if (t >= 1f)
+        {
+            isTransitioning = false;
+        }
+    }
+
+    /// <summary>
+    /// G√®re le d√©placement (Walk, Crouch, Sprint) et le saut.
+    /// </summary>
     void MovePlayer()
     {
-        // VÈrifier si le joueur est au sol
-        bool isGrounded = characterController.isGrounded;
-
-        // RÈinitialiser la vÈlocitÈ verticale lorsqu'au sol
-        if (isGrounded)
+        // Si on est au sol
+        if (characterController.isGrounded)
         {
-            moveDirection.y = -0.5f; // Une petite force vers le bas pour assurer le contact avec le sol
+            // Petite force vers le bas pour rester coll√©
+            moveDirection.y = -0.5f;
+
+            // Saut
+            if (Input.GetButtonDown("Jump"))
+            {
+                moveDirection.y = jumpForce;
+            }
         }
 
-        // Gestion du saut - indÈpendant de tout mouvement horizontal
-        if (isGrounded && Input.GetButtonDown("Jump"))
-        {
-            moveDirection.y = jumpForce;
-        }
-
-        // Get input for movement
+        // R√©cup√©ration des inputs de d√©placement
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
-
-        // Determine the movement direction
         Vector3 move = transform.right * moveHorizontal + transform.forward * moveVertical;
 
-        // Check if the player is sprinting
-        isSprinting = Input.GetKey(KeyCode.LeftShift);
+        // Choix de la vitesse
+        float currentSpeed = walkSpeed;
+        if (isCrouching)
+        {
+            currentSpeed = crouchSpeed;
+        }
+        else if (isSprinting)
+        {
+            currentSpeed = sprintSpeed;
+        }
 
-        // Set the movement speed
-        float speed = isSprinting ? sprintSpeed : walkSpeed;
+        // Applique la vitesse sur XZ
+        moveDirection.x = move.x * currentSpeed;
+        moveDirection.z = move.z * currentSpeed;
 
-        // Conserver la vÈlocitÈ verticale (saut/gravitÈ) et appliquer le mouvement horizontal
-        moveDirection.x = move.x * speed;
-        moveDirection.z = move.z * speed;
-
-        // Appliquer la gravitÈ
+        // Gravit√©
         moveDirection.y -= gravity * Time.deltaTime;
 
-        // Move the player
+        // D√©placement final via CharacterController
         characterController.Move(moveDirection * Time.deltaTime);
     }
 
-
+    /// <summary>
+    /// G√®re la rotation de la vue : horizontal = joueur, vertical = cam√©ra.
+    /// </summary>
     void RotateView()
     {
-        // RÈcupÈrer l'entrÈe de la souris
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        // Rotation du joueur sur l'axe Y (gauche/droite)
+        // Rotation horizontale
         transform.Rotate(Vector3.up * mouseX);
 
-        // Rotation verticale de la camÈra (haut/bas)
-        // RÈcupÈrer la rotation actuelle
-        Vector3 currentRotation = playerCamera.transform.localEulerAngles;
-
-        // Calculer la nouvelle rotation en X (avec inversion de mouseY pour un comportement naturel)
-        float newRotationX = currentRotation.x - mouseY;
-
-        // Ajuster la rotation si elle dÈpasse les limites
-        if (newRotationX > 180)
-            newRotationX -= 360;
-
-        // Limiter la rotation entre -90 et 90 degrÈs
+        // Rotation verticale de la cam√©ra
+        Vector3 camRotation = playerCamera.transform.localEulerAngles;
+        float newRotationX = camRotation.x - mouseY;
+        if (newRotationX > 180f) newRotationX -= 360f;
         newRotationX = Mathf.Clamp(newRotationX, -90f, 90f);
 
-        // Appliquer la nouvelle rotation ‡ la camÈra
         playerCamera.transform.localEulerAngles = new Vector3(newRotationX, 0f, 0f);
     }
 }

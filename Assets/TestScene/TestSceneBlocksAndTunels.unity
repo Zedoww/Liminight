@@ -235,8 +235,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 10
   sprintSpeed: 20
+  crouchSpeed: 2.5
   jumpForce: 2
   gravity: 9.81
+  standHeight: 2
+  crouchHeight: 1
+  standCenter: {x: 0, y: 0, z: 0}
+  crouchCenter: {x: 0, y: 0, z: 0}
+  crouchTransitionTime: 0.1
   mouseSensitivity: 500
   playerCamera: {fileID: 220747311}
 --- !u!136 &73058938
