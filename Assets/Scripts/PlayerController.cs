@@ -80,13 +80,13 @@ public class PlayerController : MonoBehaviour
     void HandleCrouchInput()
     {
         // Si on appuie sur Shift alors qu'on n'est pas accroupi -> transition vers accroupi
-        if (Input.GetKeyDown(KeyCode.LeftShift) && !isCrouching)
+        if (Input.GetKeyDown(KeyCode.C) && !isCrouching)
         {
             isCrouching = true;
             StartCrouchTransition(true);  // Vers accroupi
         }
         // Si on relâche Shift alors qu'on est accroupi -> transition vers debout
-        else if (Input.GetKeyUp(KeyCode.LeftShift) && isCrouching)
+        else if (Input.GetKeyUp(KeyCode.C) && isCrouching)
         {
             isCrouching = false;
             StartCrouchTransition(false); // Vers debout
@@ -98,7 +98,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     void HandleSprint()
     {
-        isSprinting = Input.GetKey(KeyCode.LeftAlt) && !isCrouching;
+        isSprinting = Input.GetKey(KeyCode.LeftShift) && !isCrouching;
     }
 
     /// <summary>
