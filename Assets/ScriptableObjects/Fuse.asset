@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: Fuse
   m_EditorClassIdentifier: 
   itemName: Fuse
-  icon: {fileID: 0}
-  prefab: {fileID: 3527998226621985202, guid: ab26aef58e2f948a19de447aeccd9613, type: 3}
+  icon: {fileID: 21300000, guid: 2fbe9090754a44086900f2c6b8f17d0a, type: 3}
+  prefab: {fileID: 4353188434152716178, guid: 456ba7ff90ddb4cdb8eca00d3248883c, type: 3}
+  iconScale: 0.6
