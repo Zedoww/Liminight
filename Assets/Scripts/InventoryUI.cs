@@ -20,7 +20,7 @@ public class InventoryUI : MonoBehaviour
         inventory.onItemAdded.AddListener(_ => Repaint());
     }
 
-    // Touche I (appelé depuis EquipmentManager)
+    // Touche I (appel depuis EquipmentManager)
     public void Toggle()
     {
         bool state = !panel.activeSelf;
@@ -36,7 +36,7 @@ public class InventoryUI : MonoBehaviour
     public void OnItemClicked(int idx)
     {
         equip.EquipSlot(idx);
-        Toggle();           // ferme l’inventaire
+        Toggle();           // ferme l'inventaire
     }
 
     // ---------- helpers ------------
@@ -50,7 +50,7 @@ public class InventoryUI : MonoBehaviour
             buttons.Add(go.GetComponent<ItemButton>());
         }
 
-        // Met à jour chaque bouton
+        // Met ï¿½ jour chaque bouton
         for (int i = 0; i < buttons.Count; i++)
         {
             var data = inventory.GetItemAt(i);

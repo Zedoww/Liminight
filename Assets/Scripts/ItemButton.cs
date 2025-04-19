@@ -16,6 +16,7 @@ public class ItemButton : MonoBehaviour
 
         bool hasItem = data != null;
         icon.enabled = hasItem;
+        icon.rectTransform.localScale = Vector3.one * data.iconScale;
         if (hasItem) icon.sprite = data.icon;
 
         GetComponent<Button>().interactable = hasItem;
