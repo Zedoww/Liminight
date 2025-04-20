@@ -235,8 +235,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea1a58b130ff01d478266609db96c411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  walkSpeed: 8
-  sprintSpeed: 15
+  walkSpeed: 3
+  sprintSpeed: 6
   crouchSpeed: 2.5
   jumpForce: 4
   gravity: 9.81
@@ -245,7 +245,7 @@ MonoBehaviour:
   standCenter: {x: 0, y: 0, z: 0}
   crouchCenter: {x: 0, y: 0, z: 0}
   crouchTransitionTime: 0.1
-  mouseSensitivity: 500
+  mouseSensitivity: 700
   playerCamera: {fileID: 220747311}
 --- !u!136 &73058938
 CapsuleCollider:
@@ -815,6 +815,7 @@ GameObject:
   - component: {fileID: 220747311}
   - component: {fileID: 220747310}
   - component: {fileID: 220747309}
+  - component: {fileID: 220747312}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -941,6 +942,22 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &220747312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 220747307}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f0c8af1d06744096a61a7ffca95a54f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 73058942}
+  bobAmplitude: 0.03
+  bobSpeedFactor: 4
+  bobSideAmplitude: 0.005
 --- !u!1001 &259383389
 PrefabInstance:
   m_ObjectHideFlags: 0
