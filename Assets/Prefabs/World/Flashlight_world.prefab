@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 303619472074756219}
   - component: {fileID: 2033602708983934802}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Flashlight_world
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -71,6 +71,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: b694b8ec5c41f6247843a2b67222fda6, type: 3}
       propertyPath: m_Name
       value: Body
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: b694b8ec5c41f6247843a2b67222fda6, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: b694b8ec5c41f6247843a2b67222fda6, type: 3}
       propertyPath: m_LocalPosition.x
