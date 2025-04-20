@@ -1,32 +1,76 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
+// Un slot contient un item et sa quantité
 public class Inventory : MonoBehaviour
 {
-    public UnityEngine.Events.UnityEvent<ItemData> onItemAdded
-        = new UnityEngine.Events.UnityEvent<ItemData>();
+    public UnityEvent<ItemData> onItemAdded = new UnityEvent<ItemData>();
 
-    readonly List<ItemData> items = new();
+    readonly List<InventorySlot> slots = new List<InventorySlot>();
 
-    public void Add(ItemData item)
+    // Nombre de slots utilisés
+    public int Count
     {
-        if (!items.Contains(item))
-        {
-            items.Add(item);
-            onItemAdded.Invoke(item);
-        }
+        get { return slots.Count; }
     }
 
-    // --- AJOUTS indispensables ----------------------------------
+    // Récupère le slot à l’index (ou null si hors limites)
+    public InventorySlot GetSlot(int i)
+    {
+        if (i >= 0 && i < slots.Count)
+            return slots[i];
+        return null;
+    }
 
-    // Nombre total d’objets
-    public int Count => items.Count;
+    // Récupère seulement l’ItemData pour compatibilité
+    public ItemData GetItemAt(int i)
+    {
+        InventorySlot s = GetSlot(i);
+        return s != null ? s.data : null;
+    }
 
-    // Accès sécurisé par index
-    public ItemData GetItemAt(int i) =>
-        i >= 0 && i < items.Count ? items[i] : null;
+    // Vérifie si l’inventaire contient au moins un exemplaire du nom donné
+    public bool Has(string itemName)
+    {
+        foreach (InventorySlot s in slots)
+        {
+            if (s.data.itemName == itemName && s.count > 0)
+                return true;
+        }
+        return false;
+    }
 
-    // Vérifier si on possède un objet donné (par son nom)
-    public bool Has(string itemName) =>
-        items.Exists(it => it.itemName == itemName);
+    // Ajoute un item : incrémente le count ou crée un nouveau slot
+    public void Add(ItemData item)
+    {
+        foreach (InventorySlot s in slots)
+        {
+            if (s.data == item)
+            {
+                s.count = s.count + 1;
+                onItemAdded.Invoke(item);
+                return;
+            }
+        }
+        slots.Add(new InventorySlot(item, 1));
+        onItemAdded.Invoke(item);
+    }
+
+    // Enlève un exemplaire de l’item (pour consommation par exemple)
+    public void RemoveOne(ItemData item)
+    {
+        for (int i = 0; i < slots.Count; i++)
+        {
+            if (slots[i].data == item)
+            {
+                slots[i].count = slots[i].count - 1;
+                if (slots[i].count <= 0)
+                {
+                    slots.RemoveAt(i);
+                }
+                return;
+            }
+        }
+    }
 }

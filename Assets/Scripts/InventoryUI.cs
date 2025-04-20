@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
 {
+    const int MAX_SLOTS = 12;
     [Header("UI Refs")]
     public GameObject panel;           // InventoryPanel
     public Transform gridParent;       // Content
@@ -43,18 +44,21 @@ public class InventoryUI : MonoBehaviour
 
     void Repaint()
     {
-        // Garante un bouton par item
-        for (int i = buttons.Count; i < inventory.Count; i++)
+        // Assure un nombre fixe de slots affichés
+        int maxSlots = MAX_SLOTS;  // par exemple défini en haut
+
+        // Crée autant de boutons que nécessaire
+        while (buttons.Count < maxSlots)
         {
-            var go = Instantiate(itemButtonPrefab, gridParent);
+            GameObject go = Instantiate(itemButtonPrefab, gridParent);
             buttons.Add(go.GetComponent<ItemButton>());
         }
 
-        // Met � jour chaque bouton
-        for (int i = 0; i < buttons.Count; i++)
+        // Initialise chaque bouton avec le slot (ou null)
+        for (int i = 0; i < maxSlots; i++)
         {
-            var data = inventory.GetItemAt(i);
-            buttons[i].Init(this, i, data);
+            InventorySlot slot = i < inventory.Count ? inventory.GetSlot(i) : null;
+            buttons[i].Init(this, i, slot);
         }
     }
 }
