@@ -2603,6 +2603,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41e2b8ee85b9ea14fa79377aa1726152, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scriptsToDisable:
+  - {fileID: 73058937}
+  - {fileID: 1930352771}
   panel: {fileID: 1539709919}
   gridParent: {fileID: 122407166}
   itemButtonPrefab: {fileID: 5830998932923002241, guid: 1fe8e725daaf9284dae04d638955286d, type: 3}

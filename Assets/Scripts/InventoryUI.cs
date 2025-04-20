@@ -4,6 +4,10 @@ using UnityEngine;
 public class InventoryUI : MonoBehaviour
 {
     const int MAX_SLOTS = 12;
+
+    [Header("Désactiver contrôle joueur")]
+    [SerializeField] MonoBehaviour[] scriptsToDisable;
+
     [Header("UI Refs")]
     public GameObject panel;           // InventoryPanel
     public Transform gridParent;       // Content
@@ -24,12 +28,31 @@ public class InventoryUI : MonoBehaviour
     // Touche I (appel depuis EquipmentManager)
     public void Toggle()
     {
-        bool state = !panel.activeSelf;
-        panel.SetActive(state);
-        if (state) Repaint();
+        bool open = ! panel.activeSelf;
+        panel.SetActive(open);
 
-        Cursor.visible = state;
-        Cursor.lockState = state ? CursorLockMode.None : CursorLockMode.Locked;
+        if (open)
+        {
+            Repaint();
+        }
+
+        // gestion curseur
+        if (open)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
+        // désactivation / réactivation des scripts de contrôle
+        for (int i = 0; i < scriptsToDisable.Length; i = i + 1)
+        {
+            scriptsToDisable[i].enabled = ! open;
+        }
     }
 
     // ---------- callbacks ----------
