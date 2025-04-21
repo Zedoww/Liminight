@@ -25,7 +25,7 @@ public class EquipmentManager : MonoBehaviour
 
     void ToggleFlashlight()
     {
-        // si on en tient déjà une, on la range
+        // si on en tient dï¿½jï¿½ une, on la range
         if (equippedGO && equippedGO.GetComponent<FlashlightController>())
         { Unequip(); return; }
 
@@ -38,7 +38,7 @@ public class EquipmentManager : MonoBehaviour
         }
     }
 
-    // ---------- appelé par l'UI ----------
+    // ---------- appelï¿½ par l'UI ----------
     public void EquipSlot(int index)
     {
         Unequip();
@@ -46,10 +46,16 @@ public class EquipmentManager : MonoBehaviour
         var data = inventory.GetItemAt(index);
         if (data == null) return;
 
-        // le false évite de déplacer HandSocket
+        // instanciation attachÃ©e au socket
         equippedGO = Instantiate(data.prefab, handSocket, false);
-        equippedGO.transform.localPosition = Vector3.zero;
-        equippedGO.transform.localRotation = Quaternion.identity;
+
+        // applique offset position
+        Vector3 pos = data.holdPositionOffset;
+        equippedGO.transform.localPosition = pos;
+
+        // applique offset rotation (Euler en degrÃ©s)
+        Vector3 rot = data.holdRotationOffset;
+        equippedGO.transform.localRotation = Quaternion.Euler(rot);
 
         equippedGO.GetComponent<IEquipable>()?.OnEquip();
         equippedIndex = index;

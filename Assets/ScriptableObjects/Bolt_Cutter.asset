@@ -16,3 +16,5 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 75b5f2944a1504450861d2a2cb07dd74, type: 3}
   prefab: {fileID: 8845280057718244347, guid: ccf25b7d83a40480c86234464e0147ec, type: 3}
   iconScale: 0.8
+  holdPositionOffset: {x: 0.47572, y: -0.18599, z: 0.1}
+  holdRotationOffset: {x: -60.71, y: -2.844, z: 93.946}
