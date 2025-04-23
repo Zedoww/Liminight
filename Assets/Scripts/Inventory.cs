@@ -42,20 +42,22 @@ public class Inventory : MonoBehaviour
     }
 
     // Ajoute un item : incrémente le count ou crée un nouveau slot
-    public void Add(ItemData item)
+    public bool Add(ItemData item)
     {
         foreach (InventorySlot s in slots)
         {
             if (s.data == item)
             {
-                s.count = s.count + 1;
+                s.count++;
                 onItemAdded.Invoke(item);
-                return;
+                return true;
             }
         }
         slots.Add(new InventorySlot(item, 1));
         onItemAdded.Invoke(item);
+        return true;
     }
+
 
     // Enlève un exemplaire de l’item (pour consommation par exemple)
     public void RemoveOne(ItemData item)
