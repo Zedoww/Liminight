@@ -15,7 +15,7 @@ public class EquipmentManager : MonoBehaviour
             ui.Toggle();
 
         // F : sort / range la torche
-        if (Input.GetKeyDown(KeyCode.F) && inventory.Has("Flashlight"))
+        if (Input.GetKeyDown(KeyCode.T) && inventory.Has("Flashlight"))
             ToggleFlashlight();
 
         // clic gauche : action de l'objet tenu
@@ -46,20 +46,24 @@ public class EquipmentManager : MonoBehaviour
         var data = inventory.GetItemAt(index);
         if (data == null) return;
 
-        // instanciation attachée au socket
+        // Instancie l'objet dans la main
         equippedGO = Instantiate(data.prefab, handSocket, false);
 
-        // applique offset position
-        Vector3 pos = data.holdPositionOffset;
-        equippedGO.transform.localPosition = pos;
+        // === NOUVEAU : Cherche le visuel interne à modifier ===
+        Transform visual = equippedGO.transform.Find("Body");
+        if (visual != null)
+        {
+            // applique offset position
+            visual.localPosition = data.holdPositionOffset;
 
-        // applique offset rotation (Euler en degrés)
-        Vector3 rot = data.holdRotationOffset;
-        equippedGO.transform.localRotation = Quaternion.Euler(rot);
+            // applique offset rotation (Euler en degrés)
+            visual.localRotation = Quaternion.Euler(data.holdRotationOffset);
+        }
 
         equippedGO.GetComponent<IEquipable>()?.OnEquip();
         equippedIndex = index;
     }
+
 
     public void Unequip()
     {
