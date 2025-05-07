@@ -1,4 +1,5 @@
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class InteractPromptUI : MonoBehaviour
@@ -7,6 +8,7 @@ public class InteractPromptUI : MonoBehaviour
 
     private CanvasGroup group;
     private bool shouldBeVisible = false;
+    private TextMeshProUGUI promptText;
     
 
 
@@ -14,6 +16,12 @@ public class InteractPromptUI : MonoBehaviour
     {
         group = GetComponent<CanvasGroup>();
         group.alpha = 0f;
+        promptText = GetComponentInChildren<TextMeshProUGUI>();
+        
+        if (promptText == null)
+        {
+            Debug.LogError("InteractPromptUI: TextMeshProUGUI non trouvé dans les enfants!");
+        }
     }
 
     void Update()
@@ -25,6 +33,28 @@ public class InteractPromptUI : MonoBehaviour
 
     }
 
-    public void Show() => shouldBeVisible = true;
-    public void Hide() => shouldBeVisible = false;
+    public void Show()
+    {
+        shouldBeVisible = true;
+        Debug.Log($"InteractPromptUI.Show() - shouldBeVisible: {shouldBeVisible}, alpha: {group.alpha}");
+    }
+
+    public void Hide()
+    {
+        shouldBeVisible = false;
+        Debug.Log($"InteractPromptUI.Hide() - shouldBeVisible: {shouldBeVisible}, alpha: {group.alpha}");
+    }
+
+    public void SetText(string text)
+    {
+        if (promptText != null)
+        {
+            promptText.text = text;
+            Debug.Log($"InteractPromptUI.SetText() - Nouveau texte: {text}");
+        }
+        else
+        {
+            Debug.LogError("InteractPromptUI.SetText() - promptText est null!");
+        }
+    }
 }

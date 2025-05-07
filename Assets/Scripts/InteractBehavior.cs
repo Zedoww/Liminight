@@ -35,25 +35,49 @@ public class InteractBehavior : MonoBehaviour
                 crosshairAnimator.Hide();
         }
 
+        if (interactPrompt != null)
+        {
+            if (hitInteractable)
+            {
+                interactPrompt.Show();
+                
+                // Vérifie d'abord si c'est un lecteur de carte
+                if (hit.collider.TryGetComponent<CardReader>(out var cardReader))
+                {
+                    if (inventory.Has(cardReader.RequiredItemName))
+                        interactPrompt.SetText("Ouvrir la porte (F)");
+                    else
+                        interactPrompt.SetText("Il vous faut un badge");
+                }
+                // Sinon vérifie si c'est un objet ramassable
+                else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
+                {
+                    interactPrompt.SetText("Ramasser (F)");
+                }
+            }
+            else
+            {
+                interactPrompt.Hide();
+            }
+        }
+
         // Interaction par F
         if (hitInteractable && Input.GetKeyDown(KeyCode.F))
         {
-            if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
+            // Vérifie d'abord si c'est un lecteur de carte
+            if (hit.collider.TryGetComponent<CardReader>(out var cardReader))
+            {
+                // Le CardReader gère lui-même l'interaction
+                return;
+            }
+            // Sinon vérifie si c'est un objet ramassable
+            else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
             {
                 if (inventory.Add(holder.itemData))
                 {
                     Destroy(holder.gameObject);
                 }
             }
-        }
-
-
-        if (interactPrompt != null)
-        {
-            if (hitInteractable)
-                interactPrompt.Show();
-            else
-                interactPrompt.Hide();
         }
     }
 }

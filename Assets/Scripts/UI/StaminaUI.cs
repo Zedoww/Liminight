@@ -10,11 +10,10 @@ public class StaminaUI : MonoBehaviour
     private float targetAlpha = 0f;
 
     /// <summary>
-    /// Appelé par PlayerController.onStaminaChanged (valeur entre 0 et 1).
+    /// Appelï¿½ par PlayerController.onStaminaChanged (valeur entre 0 et 1).
     /// </summary>
     public void SetStamina(float ratio)
     {
-        Debug.Log("Stamina " + ratio);
         canvasFillImage.fillAmount = ratio;
         targetAlpha = (ratio < 1f) ? 1f : 0f;
     }
