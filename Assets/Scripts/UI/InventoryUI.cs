@@ -1,84 +1,81 @@
+// InventoryUI.cs
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using System.Collections;
 
 public class InventoryUI : MonoBehaviour
 {
     const int MAX_SLOTS = 12;
 
-    [Header("Désactiver contrôle joueur")]
-    [SerializeField] MonoBehaviour[] scriptsToDisable;
-
     [Header("UI Refs")]
-    public GameObject panel;           // InventoryPanel
-    public Transform gridParent;       // Content
+    public GameObject inventoryPanel;
+    public Transform gridParent;
     public GameObject itemButtonPrefab;
+    public CanvasGroup canvasGroup;
 
     [Header("Gameplay")]
-    public Inventory inventory;        // sur le Player
-    public EquipmentManager equip;     // idem
+    public Inventory inventory;
+
+    [Header("Fade")]
+    public float fadeDuration = 0.3f;
 
     readonly List<ItemButton> buttons = new();
+    bool isFading = false;
 
     void Awake()
     {
-        panel.SetActive(false);
+        inventoryPanel.SetActive(false);
         inventory.onItemAdded.AddListener(_ => Repaint());
+
+        // Démarre invisible
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
     }
 
-    // Touche I (appel depuis EquipmentManager)
     public void Toggle()
     {
-        bool open = ! panel.activeSelf;
-        panel.SetActive(open);
-
-        if (open)
-        {
-            Repaint();
-        }
-
-        // gestion curseur
-        if (open)
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
+        if (inventoryPanel.activeSelf)
+            Close();
         else
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-
-        // désactivation / réactivation des scripts de contrôle
-        for (int i = 0; i < scriptsToDisable.Length; i = i + 1)
-        {
-            scriptsToDisable[i].enabled = ! open;
-        }
+            Open();
     }
 
-    // ---------- callbacks ----------
+    public void Open()
+    {
+        inventoryPanel.SetActive(true);
+        Repaint();
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        Time.timeScale = 0f;
+
+        StartCoroutine(FadeCanvas(0f, 1f, true));
+    }
+
+    public void Close()
+    {
+        if (isFading) return;
+        StartCoroutine(FadeOutAndDisable());
+    }
+
+    public bool IsOpen() => inventoryPanel.activeSelf;
 
     public void OnItemClicked(int idx)
     {
-        equip.EquipSlot(idx);
-        Toggle();           // ferme l'inventaire
+        Close();
     }
-
-    // ---------- helpers ------------
 
     void Repaint()
     {
-        // Assure un nombre fixe de slots affichés
-        int maxSlots = MAX_SLOTS;  // par exemple défini en haut
-
-        // Crée autant de boutons que nécessaire
-        while (buttons.Count < maxSlots)
+        while (buttons.Count < MAX_SLOTS)
         {
             GameObject go = Instantiate(itemButtonPrefab, gridParent);
             buttons.Add(go.GetComponent<ItemButton>());
         }
 
-        // Initialise chaque bouton avec le slot (ou null)
-        for (int i = 0; i < maxSlots; i++)
+        for (int i = 0; i < MAX_SLOTS; i++)
         {
             InventorySlot slot = i < inventory.Count ? inventory.GetSlot(i) : null;
             buttons[i].Init(this, i, slot);
@@ -87,9 +84,44 @@ public class InventoryUI : MonoBehaviour
 
     void Update()
     {
-        if (panel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
-        {
+        if (Keyboard.current.iKey.wasPressedThisFrame)
             Toggle();
+
+        if (inventoryPanel.activeSelf && Keyboard.current.escapeKey.wasPressedThisFrame)
+            Close();
+    }
+
+    IEnumerator FadeCanvas(float from, float to, bool enable)
+    {
+        isFading = true;
+        float elapsed = 0f;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
+
+        while (elapsed < fadeDuration)
+        {
+            canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / fadeDuration);
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
         }
+
+        canvasGroup.alpha = to;
+        isFading = false;
+
+        if (!enable)
+        {
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
+            inventoryPanel.SetActive(false);
+        }
+    }
+
+    IEnumerator FadeOutAndDisable()
+    {
+        yield return FadeCanvas(1f, 0f, false);
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1f;
     }
 }

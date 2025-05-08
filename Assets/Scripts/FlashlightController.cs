@@ -69,34 +69,27 @@ public class FlashlightController : MonoBehaviour
 
     void TryToggle()
     {
-        Debug.Log("Pression touche T détectée"); // vérifie si ce log s'affiche
 
         if (inventory == null)
         {
-            Debug.LogWarning("Inventaire non assigné.");
             return;
         }
 
-        Debug.Log("Inventaire détecté.");
 
         if (!inventory.Has("Flashlight"))
         {
-            Debug.Log("Torche absente de l’inventaire.");
             return;
         }
 
-        Debug.Log("Torche présente, on active/désactive.");
 
         isOn = !isOn;
 
         if (spot != null)
         {
             spot.enabled = isOn;
-            Debug.Log("Spot.enabled = " + isOn);
         }
         else
         {
-            Debug.LogWarning("Spot Light non assigné.");
         }
 
         if (toggleSound)
@@ -106,8 +99,8 @@ public class FlashlightController : MonoBehaviour
 
     public void OnEquip()
     {
-        if (equipSound)
-            audioSource.PlayOneShot(equipSound);
+        //if (equipSound)
+            //audioSource.PlayOneShot(equipSound);
     }
 
     public void OnUnequip()

@@ -1,3 +1,4 @@
+// InteractBehavior.cs
 using UnityEngine;
 
 public class InteractBehavior : MonoBehaviour
@@ -6,27 +7,33 @@ public class InteractBehavior : MonoBehaviour
     public float pickupRange = 3f;
     public LayerMask pickableMask;
     public Camera cam;
-    public CrosshairAnimator crosshairAnimator; // ⚠️ nouveau champ pour le script d'animation
+    public CrosshairAnimator crosshairAnimator;
     public InteractPromptUI interactPrompt;
+    public AudioClip equipSound;
+
+    private AudioSource audioSource;
 
     void Start()
     {
-        // Cache le curseur système au démarrage
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
 
-        // Force le curseur UI à être invisible au départ
         if (crosshairAnimator != null)
             crosshairAnimator.Hide();
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.spatialBlend = 0f;
+        audioSource.playOnAwake = false;
     }
 
     void Update()
     {
-        // Raycast depuis le centre de l'écran
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         bool hitInteractable = Physics.Raycast(ray, out RaycastHit hit, pickupRange, pickableMask);
 
-        // Affiche ou cache le curseur en douceur
         if (crosshairAnimator != null)
         {
             if (hitInteractable)
@@ -40,8 +47,7 @@ public class InteractBehavior : MonoBehaviour
             if (hitInteractable)
             {
                 interactPrompt.Show();
-                
-                // Vérifie d'abord si c'est un lecteur de carte
+
                 if (hit.collider.TryGetComponent<CardReader>(out var cardReader))
                 {
                     if (inventory.Has(cardReader.RequiredItemName))
@@ -49,7 +55,6 @@ public class InteractBehavior : MonoBehaviour
                     else
                         interactPrompt.SetText("Il vous faut un badge");
                 }
-                // Sinon vérifie si c'est un objet ramassable
                 else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                 {
                     interactPrompt.SetText("Ramasser (F)");
@@ -61,29 +66,28 @@ public class InteractBehavior : MonoBehaviour
             }
         }
 
-        // Interaction par F
         if (hitInteractable && Input.GetKeyDown(KeyCode.F))
         {
-            // Vérifie d'abord si c'est un lecteur de carte
             if (hit.collider.TryGetComponent<CardReader>(out var cardReader))
             {
-                // Le CardReader gère lui-même l'interaction
                 return;
             }
-            // Sinon vérifie si c'est un objet ramassable
             else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
             {
                 if (inventory.Add(holder.itemData))
                 {
                     Destroy(holder.gameObject);
 
-                    // Ajoute ici : si c’est la torche, on joue le son
+                    // Joue un son d'équipement pour tout item ramassé
+                    if (equipSound != null)
+                        audioSource.PlayOneShot(equipSound);
+
+                    // Si torche, appelle son activation
                     if (holder.itemData.itemName == "Flashlight")
                     {
-                        // Recherche le GameObject "Flashlight" dans la scène
-                        var fl = FindObjectOfType<FlashlightController>();
+                        var fl = Object.FindFirstObjectByType<FlashlightController>();
                         if (fl != null)
-                            fl.OnEquip(); // joue le equipSound
+                            fl.OnEquip();
                     }
                 }
             }
