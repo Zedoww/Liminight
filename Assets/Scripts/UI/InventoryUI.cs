@@ -2,36 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections;
 
 public class InventoryUI : MonoBehaviour
 {
-    const int MAX_SLOTS = 12;
+    const int MAX_SLOTS = 15;
 
     [Header("UI Refs")]
     public GameObject inventoryPanel;
     public Transform gridParent;
     public GameObject itemButtonPrefab;
-    public CanvasGroup canvasGroup;
+    public PauseMenuManager pauseMenuUI;
 
     [Header("Gameplay")]
     public Inventory inventory;
 
-    [Header("Fade")]
-    public float fadeDuration = 0.3f;
-
     readonly List<ItemButton> buttons = new();
-    bool isFading = false;
 
     void Awake()
     {
         inventoryPanel.SetActive(false);
         inventory.onItemAdded.AddListener(_ => Repaint());
-
-        // Démarre invisible
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
     }
 
     public void Toggle()
@@ -50,14 +40,20 @@ public class InventoryUI : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         Time.timeScale = 0f;
-
-        StartCoroutine(FadeCanvas(0f, 1f, true));
     }
 
     public void Close()
     {
-        if (isFading) return;
-        StartCoroutine(FadeOutAndDisable());
+        inventoryPanel.SetActive(false);
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1f;
+    }
+
+    public void CloseInventoryToMenu()
+    {
+        inventoryPanel.SetActive(false);
+        pauseMenuUI.ShowPauseMenuOnly();
     }
 
     public bool IsOpen() => inventoryPanel.activeSelf;
@@ -89,39 +85,5 @@ public class InventoryUI : MonoBehaviour
 
         if (inventoryPanel.activeSelf && Keyboard.current.escapeKey.wasPressedThisFrame)
             Close();
-    }
-
-    IEnumerator FadeCanvas(float from, float to, bool enable)
-    {
-        isFading = true;
-        float elapsed = 0f;
-        canvasGroup.interactable = true;
-        canvasGroup.blocksRaycasts = true;
-
-        while (elapsed < fadeDuration)
-        {
-            canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / fadeDuration);
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        canvasGroup.alpha = to;
-        isFading = false;
-
-        if (!enable)
-        {
-            canvasGroup.interactable = false;
-            canvasGroup.blocksRaycasts = false;
-            inventoryPanel.SetActive(false);
-        }
-    }
-
-    IEnumerator FadeOutAndDisable()
-    {
-        yield return FadeCanvas(1f, 0f, false);
-
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        Time.timeScale = 1f;
     }
 }

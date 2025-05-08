@@ -1,51 +1,72 @@
+// SettingsPanelUI.cs
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class SettingsPanelUI : MonoBehaviour
+public class SettingsPanel : MonoBehaviour
 {
     [Header("Volume")]
     public Slider volumeSlider;
+    public TextMeshProUGUI volumeValueText;
 
     [Header("Sensibilité souris")]
-    public TMP_InputField sensitivityInput;
+    public Slider sensitivitySlider;
+    public TextMeshProUGUI sensitivityValueText;
+    public float sensitivityScaleFactor = 30f; // interne = slider * facteur
 
     [Header("Player Controller")]
     public PlayerController playerController;
+    public PauseMenuManager pauseMenu;
 
     void Start()
     {
         // Volume
         volumeSlider.value = AudioListener.volume;
         volumeSlider.onValueChanged.AddListener(SetVolume);
+        UpdateVolumeText(AudioListener.volume);
 
         // Sensibilité
-        sensitivityInput.onValueChanged.AddListener(UpdateSensitivityLive);
-        sensitivityInput.onEndEdit.AddListener(ApplySensitivity);
+        float sliderValue = playerController.mouseSensitivity / sensitivityScaleFactor;
+        sensitivitySlider.value = sliderValue;
+        sensitivitySlider.onValueChanged.AddListener(SetSensitivity);
+        UpdateSensitivityText(sliderValue);
+    }
 
-        // Affiche la valeur actuelle dans le champ
-        if (playerController != null)
-            sensitivityInput.text = playerController.mouseSensitivity.ToString("F0");
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            BackToMenu();
+        }
     }
 
     void SetVolume(float value)
     {
         AudioListener.volume = value;
+        UpdateVolumeText(value);
     }
 
-    void UpdateSensitivityLive(string value)
+    void UpdateVolumeText(float value)
     {
-        // Facultatif : change pendant la frappe
-        if (float.TryParse(value, out float v))
-            playerController.mouseSensitivity = Mathf.Clamp(v, 0f, 300f);
+        volumeValueText.text = Mathf.RoundToInt(value * 100f) + "%";
     }
 
-    void ApplySensitivity(string value)
+    void SetSensitivity(float value)
     {
-        if (!float.TryParse(value, out float newVal)) return;
+        float actual = value * sensitivityScaleFactor;
+        playerController.mouseSensitivity = actual;
+        UpdateSensitivityText(value);
+    }
 
-        newVal = Mathf.Clamp(newVal, 0f, 300f);
-        playerController.mouseSensitivity = newVal;
-        sensitivityInput.text = newVal.ToString("F0"); // nettoie
+    void UpdateSensitivityText(float value)
+    {
+        sensitivityValueText.text = value.ToString("F1");
+    }
+
+    public void BackToMenu()
+    {
+        gameObject.SetActive(false);
+        if (pauseMenu != null)
+            pauseMenu.ShowPauseMenuOnly();
     }
 }

@@ -1,14 +1,14 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using System.Collections;
 
 public class PauseMenuManager : MonoBehaviour
 {
-    [Header("Références UI")]
+    [Header("RÃ©fÃ©rences UI")]
     public GameObject pauseMenu;
     public GameObject settingsPanel;
-    public InventoryUI inventoryUI;
+    public InventoryUI inventoryUI; // âœ… câ€™est bien le script, pas GameObject
 
     public CanvasGroup canvasGroup;
     public Button resumeButton;
@@ -19,15 +19,14 @@ public class PauseMenuManager : MonoBehaviour
     public float fadeDuration = 0.3f;
 
     private bool isPaused = false;
+    public bool IsOpen() => pauseMenu.activeSelf;
 
     void Start()
     {
-        // Connexion des boutons
         resumeButton.onClick.AddListener(ResumeGame);
         settingsButton.onClick.AddListener(OpenSettings);
         inventoryButton.onClick.AddListener(OpenInventory);
 
-        // Démarrage caché
         pauseMenu.SetActive(false);
         settingsPanel.SetActive(false);
         canvasGroup.alpha = 0;
@@ -41,6 +40,21 @@ public class PauseMenuManager : MonoBehaviour
         {
             if (isPaused) ResumeGame();
             else PauseGame();
+        }
+
+        if (Keyboard.current.iKey.wasPressedThisFrame)
+        {
+            if (settingsPanel.activeSelf) return;
+
+            if (isPaused && !inventoryUI.IsOpen())
+                OpenInventory();
+            else if (inventoryUI.IsOpen())
+                CloseInventory();
+            else if (!isPaused)
+            {
+                PauseGame();
+                OpenInventory();
+            }
         }
     }
 
@@ -65,22 +79,39 @@ public class PauseMenuManager : MonoBehaviour
 
     public void OpenSettings()
     {
-        pauseMenu.SetActive(false);         // Masque le menu pause
-        settingsPanel.SetActive(true);      // Affiche le panneau des réglages
+        pauseMenu.SetActive(false);
+        settingsPanel.SetActive(true);
     }
+
     public void CloseSettings()
     {
         settingsPanel.SetActive(false);
         pauseMenu.SetActive(true);
     }
 
-
     public void OpenInventory()
     {
         pauseMenu.SetActive(false);
-        inventoryUI.Open(); // fade + curseur + pause
+        inventoryUI.Open();
     }
 
+    public void CloseInventory()
+    {
+        inventoryUI.Close();
+        pauseMenu.SetActive(true);
+    }
+
+    public void ShowPauseMenuOnly()
+    {
+        pauseMenu.SetActive(true);
+        canvasGroup.alpha = 1f;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        isPaused = true;
+    }
 
     private IEnumerator FadeCanvas(float from, float to)
     {
