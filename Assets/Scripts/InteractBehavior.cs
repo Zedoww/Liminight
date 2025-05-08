@@ -76,6 +76,15 @@ public class InteractBehavior : MonoBehaviour
                 if (inventory.Add(holder.itemData))
                 {
                     Destroy(holder.gameObject);
+
+                    // Ajoute ici : si c’est la torche, on joue le son
+                    if (holder.itemData.itemName == "Flashlight")
+                    {
+                        // Recherche le GameObject "Flashlight" dans la scène
+                        var fl = FindObjectOfType<FlashlightController>();
+                        if (fl != null)
+                            fl.OnEquip(); // joue le equipSound
+                    }
                 }
             }
         }

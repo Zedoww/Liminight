@@ -1,86 +1,41 @@
 using UnityEngine;
 
-public class FlashlightController : MonoBehaviour, IEquipable, IUsable
+public class FlashlightController : MonoBehaviour
 {
+    [Header("Références")]
     [SerializeField] Light spot;
-    [SerializeField] Transform visualModel;
-    [SerializeField] Transform spotTransform;
+    [SerializeField] Inventory inventory;
 
     [Header("Audio")]
     [SerializeField] AudioClip equipSound;
     [SerializeField] AudioClip toggleSound;
-    AudioSource audioSource;
-
-    [Header("Oscillation")]
-    public float baseSwayAmount = 0.002f;
-    public float maxSwayAmount = 0.015f;
-    public float swaySpeed = 2f;
-
-    private CharacterController playerController;
-    private Vector3 initialLocalPos;
-    private float swayTimer = 0f;
-    private bool isOn = false;
-    private Vector3 currentOffset = Vector3.zero;
 
     [Header("Flicker Settings")]
-    [SerializeField] float flickerChancePerSecond = 0.1f; // probabilité de clignoter par seconde
+    [SerializeField] float flickerChancePerSecond = 0.1f;
     [SerializeField] float minFlickerDuration = 0.05f;
     [SerializeField] float maxFlickerDuration = 0.2f;
 
-    private float flickerTimer = 0f;
+    private AudioSource audioSource;
+    private bool isOn = false;
     private bool isFlickering = false;
+    private float flickerTimer = 0f;
 
-
-
-    void Awake()
+    void Start()
     {
-        if (spot != null) spot.enabled = false;
-        if (visualModel == null) visualModel = transform.Find("Body");
-        if (visualModel != null) initialLocalPos = visualModel.localPosition;
-        playerController = FindFirstObjectByType<CharacterController>();
-        if (spot != null) spotTransform = spot.transform;
+        if (spot != null)
+            spot.enabled = false;
+
         audioSource = gameObject.AddComponent<AudioSource>();
-    }
-
-    public void OnEquip()
-    {
-        spot.enabled = isOn;
-        if (equipSound) audioSource.PlayOneShot(equipSound);
-    }
-
-    public void OnUnequip()
-    {
-        spot.enabled = false;
-    }
-
-    public void Use()
-    {
-        isOn = !isOn;
-        spot.enabled = isOn;
-        if (toggleSound) audioSource.PlayOneShot(toggleSound);
+        audioSource.spatialBlend = 0f; // Son 2D
     }
 
     void Update()
     {
-        if (visualModel == null || playerController == null) return;
+        // Activation par touche T
+        if (Input.GetKeyDown(KeyCode.T))
+            TryToggle();
 
-        Vector3 velocity = playerController.velocity;
-        velocity.y = 0f;
-        float speed = velocity.magnitude;
-
-        float swayAmount = Mathf.Lerp(baseSwayAmount, maxSwayAmount, speed / 4f);
-        float swaySpeedCurrent = Mathf.Lerp(0.5f, swaySpeed, speed / 4f);
-        swayTimer += Time.deltaTime * swaySpeedCurrent;
-
-        Vector3 targetOffset = new Vector3(
-            Mathf.Sin(swayTimer * 1.2f) * swayAmount,
-            Mathf.Cos(swayTimer * 2f) * swayAmount * 0.5f,
-            0f
-        );
-
-        currentOffset = Vector3.Lerp(currentOffset, targetOffset, Time.deltaTime * 2f);
-        visualModel.localPosition = initialLocalPos + currentOffset;
-
+        // Gestion du clignotement (flicker)
         if (isOn && spot != null)
         {
             if (isFlickering)
@@ -102,7 +57,63 @@ public class FlashlightController : MonoBehaviour, IEquipable, IUsable
                 }
             }
         }
+
+        // Fluctuation subtile réaliste de l’intensité
+        if (isOn && spot != null && !isFlickering)
+        {
+            float fluctuation = Mathf.PerlinNoise(Time.time * 3f, 0f) * 0.1f + 0.95f;
+            spot.intensity = 3f * fluctuation;
+        }
+
+    }
+
+    void TryToggle()
+    {
+        Debug.Log("Pression touche T détectée"); // vérifie si ce log s'affiche
+
+        if (inventory == null)
+        {
+            Debug.LogWarning("Inventaire non assigné.");
+            return;
+        }
+
+        Debug.Log("Inventaire détecté.");
+
+        if (!inventory.Has("Flashlight"))
+        {
+            Debug.Log("Torche absente de l’inventaire.");
+            return;
+        }
+
+        Debug.Log("Torche présente, on active/désactive.");
+
+        isOn = !isOn;
+
+        if (spot != null)
+        {
+            spot.enabled = isOn;
+            Debug.Log("Spot.enabled = " + isOn);
+        }
+        else
+        {
+            Debug.LogWarning("Spot Light non assigné.");
+        }
+
+        if (toggleSound)
+            audioSource.PlayOneShot(toggleSound);
     }
 
 
+    public void OnEquip()
+    {
+        if (equipSound)
+            audioSource.PlayOneShot(equipSound);
+    }
+
+    public void OnUnequip()
+    {
+        isOn = false;
+        if (spot != null)
+            spot.enabled = false;
+    }
 }

@@ -15,15 +15,15 @@ public class CrosshairAnimator : MonoBehaviour
     {
         canvasGroup = GetComponent<CanvasGroup>();
         rectTransform = GetComponent<RectTransform>();
-        canvasGroup.alpha = 0f;
+        canvasGroup.alpha = 1f;
         rectTransform.localScale = Vector3.one;
     }
 
     void Update()
     {
         // Animation de transparence
-        float targetAlpha = shouldBeVisible ? 1f : 0f;
-        canvasGroup.alpha = Mathf.MoveTowards(canvasGroup.alpha, targetAlpha, fadeSpeed * Time.deltaTime);
+        //float targetAlpha = shouldBeVisible ? 1f : 0f;
+        //canvasGroup.alpha = Mathf.MoveTowards(canvasGroup.alpha, targetAlpha, fadeSpeed * Time.deltaTime);
 
         // Animation de zoom (scale)
         float target = shouldBeVisible ? targetScale : 1f;
