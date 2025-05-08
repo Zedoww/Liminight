@@ -47,13 +47,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spot: {fileID: 7473546116518344174}
-  visualModel: {fileID: 303619472074756219}
-  spotTransform: {fileID: 7473546116511933678}
+  inventory: {fileID: 0}
   equipSound: {fileID: 8300000, guid: bf8fb01e630c4a04f844f397f5cb992f, type: 3}
   toggleSound: {fileID: 8300000, guid: 97fb672ec6d6edc4fba88f40f1c86460, type: 3}
-  baseSwayAmount: 0.01
-  maxSwayAmount: 0.2
+  flickerChancePerSecond: 0.1
+  minFlickerDuration: 0.05
+  maxFlickerDuration: 0.2
+  swayAmplitude: 0.05
   swaySpeed: 6
+  sideSwayAmplitude: 0.03
+  exhaustedSwayMultiplier: 2
+  swayLag: 0.1
+  lagAmount: 1
+  returnSpeed: 1
 --- !u!1001 &7473546116512333422
 PrefabInstance:
   m_ObjectHideFlags: 0

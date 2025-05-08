@@ -686,8 +686,11 @@ MonoBehaviour:
   staminaRegenRate: 0.25
   staminaRegenWhileWalking: 0.1
   staminaUseRate: 0.16666667
+  staminaUseSpeedThreshold: 0.5
   currentStamina: 1
   isExhausted: 0
+  exhaustedSpeedMultiplier: 0.7
+  exhaustedSlowdownDuration: 5
   staminaUI: {fileID: 1124873143}
   isSprinting: 0
 --- !u!136 &73058938
@@ -972,8 +975,12 @@ MonoBehaviour:
   bobAmplitude: 0.06
   bobSpeedFactor: 4
   sideAmplitude: 0.04
-  idleAmplitude: 0.004
+  idleAmplitude: 0.008
   idleSpeed: 1.2
+  exhaustedAmplitudeMultiplier: 3.5
+  exhaustedSpeedMultiplier: 2
+  exhaustedEffectDuration: 3
+  exhaustedEffectFadeTime: 2
   footstepClipsWalk:
   - {fileID: 8300000, guid: 5eb41636c904f7e4ea6454a595384ed7, type: 3}
   - {fileID: 8300000, guid: 6cb5de1ca88828347b419358e3a6b98c, type: 3}
@@ -10510,11 +10517,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spot: {fileID: 753023310}
   inventory: {fileID: 73058943}
+  playerController: {fileID: 0}
   equipSound: {fileID: 0}
   toggleSound: {fileID: 8300000, guid: 97fb672ec6d6edc4fba88f40f1c86460, type: 3}
   flickerChancePerSecond: 0.1
   minFlickerDuration: 0.05
   maxFlickerDuration: 0.2
+  swayAmplitude: 0.05
+  swaySpeed: 1.2
+  sideSwayAmplitude: 0.03
+  exhaustedSwayMultiplier: 2
+  swayLag: 0.1
+  lagAmount: 0.1
+  returnSpeed: 5
 --- !u!1001 &2055889625
 PrefabInstance:
   m_ObjectHideFlags: 0

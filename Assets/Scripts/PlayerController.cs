@@ -27,8 +27,16 @@ public class PlayerController : MonoBehaviour
     public float staminaRegenRate = 0.25f;  // à l'arrêt
     public float staminaRegenWhileWalking = 0.1f;   // en marchant
     public float staminaUseRate = 1f / 6f; // sprint = 6s
+    [Tooltip("Seuil de vitesse minimum pour consommer de la stamina en sprintant")]
+    public float staminaUseSpeedThreshold = 0.5f;
     [HideInInspector] public float currentStamina = 1f;
     [HideInInspector] public bool isExhausted;
+
+    [Header("Essoufflement")]
+    [Tooltip("Multiplicateur de vitesse quand le joueur est essoufflé")]
+    public float exhaustedSpeedMultiplier = 0.7f;
+    [Tooltip("Durée du ralentissement après avoir été essoufflé (en secondes)")]
+    public float exhaustedSlowdownDuration = 5f;
 
     // UI
     [Header("UI")]
@@ -42,6 +50,9 @@ public class PlayerController : MonoBehaviour
     private bool isCrouching = false;
     public bool isSprinting = false;
     private float verticalVel = 0f;
+    private float exhaustedStartTime = -999f;
+    private bool wasExhaustedLastFrame = false;
+    private float currentSpeedMultiplier = 1f;
 
     // Crouch lerp
     private bool isTransitioning;
@@ -74,6 +85,7 @@ public class PlayerController : MonoBehaviour
     {
         HandleCrouchInput();
         HandleStamina();
+        UpdateExhaustedEffect();
         UpdateCrouchTransition();
         MovePlayer();
         RotateView();
@@ -116,8 +128,15 @@ public class PlayerController : MonoBehaviour
     // ───── STAMINA & SPRINT ─────
     void HandleStamina()
     {
+        // Vérifier si le joueur se déplace suffisamment pour consommer de la stamina
+        Vector3 horizontalVelocity = characterController.velocity;
+        horizontalVelocity.y = 0f;
+        float horizontalSpeed = horizontalVelocity.magnitude;
+        
         bool wantSprint = Input.GetKey(KeyCode.LeftShift) && !isCrouching;
-        if (wantSprint && !isExhausted)
+        bool isMovingEnough = horizontalSpeed > staminaUseSpeedThreshold;
+        
+        if (wantSprint && !isExhausted && isMovingEnough)
         {
             isSprinting = true;
             currentStamina -= staminaUseRate * Time.deltaTime;
@@ -125,6 +144,7 @@ public class PlayerController : MonoBehaviour
             {
                 currentStamina = 0f;
                 isExhausted = true;
+                exhaustedStartTime = Time.time; // Enregistrer le moment où le joueur devient essoufflé
                 isSprinting = false;
             }
         }
@@ -138,11 +158,52 @@ public class PlayerController : MonoBehaviour
             if (currentStamina >= maxStamina)
             {
                 currentStamina = maxStamina;
-                isExhausted = false;
+                if (isExhausted)
+                {
+                    isExhausted = false;
+                }
             }
         }
 
         onStaminaChanged?.Invoke(currentStamina / maxStamina);
+    }
+
+    // ───── ESSOUFFLEMENT VITESSE ─────
+    void UpdateExhaustedEffect()
+    {
+        // Détecter quand le joueur devient essoufflé
+        if (isExhausted && !wasExhaustedLastFrame)
+        {
+            exhaustedStartTime = Time.time;
+        }
+
+        // Calculer le multiplicateur de vitesse
+        if (isExhausted || Time.time < exhaustedStartTime + exhaustedSlowdownDuration)
+        {
+            float timeSinceExhausted = Time.time - exhaustedStartTime;
+            
+            if (isExhausted)
+            {
+                // Ralentissement maximal tant que le joueur est essoufflé
+                currentSpeedMultiplier = exhaustedSpeedMultiplier;
+            }
+            else if (timeSinceExhausted < exhaustedSlowdownDuration)
+            {
+                // Transition progressive vers la vitesse normale
+                float t = timeSinceExhausted / exhaustedSlowdownDuration;
+                currentSpeedMultiplier = Mathf.Lerp(exhaustedSpeedMultiplier, 1f, t);
+            }
+            else
+            {
+                currentSpeedMultiplier = 1f;
+            }
+        }
+        else
+        {
+            currentSpeedMultiplier = 1f;
+        }
+
+        wasExhaustedLastFrame = isExhausted;
     }
 
     // ───── MOUVEMENT ─────
@@ -163,6 +224,9 @@ public class PlayerController : MonoBehaviour
         float speed = walkSpeed;
         if (isCrouching) speed = crouchSpeed;
         else if (isSprinting) speed = sprintSpeed;
+
+        // Appliquer le multiplicateur de vitesse dû à l'essoufflement
+        speed *= currentSpeedMultiplier;
 
         Vector3 vel = dir * speed;
         vel.y = verticalVel;
