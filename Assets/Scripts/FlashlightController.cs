@@ -59,7 +59,7 @@ public class FlashlightController : MonoBehaviour
         
         // Trouver le PlayerController si non assigné
         if (playerController == null)
-            playerController = FindObjectOfType<PlayerController>();
+            playerController = FindFirstObjectByType<PlayerController>();
             
         if (playerController != null)
             previousPlayerPosition = playerController.transform.position;

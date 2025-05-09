@@ -56,5 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Mirage.sln"
+    "dotnet.defaultSolution": "Mirage.sln",
+    "dotnet.preferCSharpExtension": true
 }
