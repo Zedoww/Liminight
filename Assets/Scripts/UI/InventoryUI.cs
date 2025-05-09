@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public class InventoryUI : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class InventoryUI : MonoBehaviour
     [Header("Gameplay")]
     public Inventory inventory;
 
+    private bool isTransitioning = false;
     readonly List<ItemButton> buttons = new();
 
     void Awake()
@@ -26,6 +28,9 @@ public class InventoryUI : MonoBehaviour
 
     public void Toggle()
     {
+        if (isTransitioning)
+            return;
+            
         if (inventoryPanel.activeSelf)
             Close();
         else
@@ -34,26 +39,60 @@ public class InventoryUI : MonoBehaviour
 
     public void Open()
     {
+        if (isTransitioning)
+            return;
+            
+        isTransitioning = true;
         inventoryPanel.SetActive(true);
         Repaint();
 
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         Time.timeScale = 0f;
+        isTransitioning = false;
     }
 
     public void Close()
     {
+        if (isTransitioning)
+            return;
+            
+        isTransitioning = true;
         inventoryPanel.SetActive(false);
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-        Time.timeScale = 1f;
+        
+        // Ne pas modifier Time.timeScale ici, laisser le contrôle
+        // au PauseMenuManager ou au système appelant
+        
+        // Ne modifier ces paramètres que si on revient au jeu
+        // et pas quand on revient au menu pause
+        if (pauseMenuUI == null || !pauseMenuUI.IsOpen())
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            Time.timeScale = 1f;
+        }
+        
+        isTransitioning = false;
     }
 
     public void CloseInventoryToMenu()
     {
+        if (isTransitioning)
+            return;
+            
+        isTransitioning = true;
+        
+        // Important: activer directement le menu pause
+        // et éviter d'utiliser une coroutine sur ce GameObject
+        if (pauseMenuUI != null)
+        {
+            // Assurer que le pause menu est prêt avant de désactiver l'inventaire
+            pauseMenuUI.ShowPauseMenuOnly();
+        }
+        
+        // Maintenant on peut désactiver l'inventaire en toute sécurité
         inventoryPanel.SetActive(false);
-        pauseMenuUI.ShowPauseMenuOnly();
+        isTransitioning = false;
     }
 
     public bool IsOpen() => inventoryPanel.activeSelf;
@@ -80,10 +119,20 @@ public class InventoryUI : MonoBehaviour
 
     void Update()
     {
-        if (Keyboard.current.iKey.wasPressedThisFrame)
+        // Éviter de traiter les inputs pendant les transitions
+        if (isTransitioning)
+            return;
+            
+        // L'inventaire peut être ouvert avec la touche I
+        if (Keyboard.current?.iKey.wasPressedThisFrame == true)
+        {
             Toggle();
+        }
 
-        if (inventoryPanel.activeSelf && Keyboard.current.escapeKey.wasPressedThisFrame)
-            Close();
+        // Quand l'inventaire est ouvert, ESC le ferme et revient au menu pause
+        if (inventoryPanel.activeSelf && Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+        {
+            CloseInventoryToMenu();
+        }
     }
 }

@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class SettingsPanel : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class SettingsPanel : MonoBehaviour
     public Slider volumeSlider;
     public TextMeshProUGUI volumeValueText;
 
-    [Header("Sensibilit� souris")]
+    [Header("Sensibilité souris")]
     public Slider sensitivitySlider;
     public TextMeshProUGUI sensitivityValueText;
     public float sensitivityScaleFactor = 30f; // interne = slider * facteur
@@ -25,7 +26,7 @@ public class SettingsPanel : MonoBehaviour
         volumeSlider.onValueChanged.AddListener(SetVolume);
         UpdateVolumeText(AudioListener.volume);
 
-        // Sensibilit�
+        // Sensibilité
         float sliderValue = playerController.mouseSensitivity / sensitivityScaleFactor;
         sensitivitySlider.value = sliderValue;
         sensitivitySlider.onValueChanged.AddListener(SetSensitivity);
@@ -34,7 +35,8 @@ public class SettingsPanel : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Utiliser le nouveau système d'input au lieu de Input.GetKeyDown
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             BackToMenu();
         }
@@ -65,7 +67,10 @@ public class SettingsPanel : MonoBehaviour
 
     public void BackToMenu()
     {
+        // D'abord désactiver ce panneau
         gameObject.SetActive(false);
+        
+        // Puis retourner au menu de pause si disponible
         if (pauseMenu != null)
             pauseMenu.ShowPauseMenuOnly();
     }

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
+using UnityEngine.InputSystem;
 using System.Collections;
 
 public class MainMenuManager : MonoBehaviour
@@ -36,6 +37,7 @@ public class MainMenuManager : MonoBehaviour
     AudioSource videoAudioSource;
     RenderTexture videoRenderTexture;
     bool isPlayingVideo;
+    bool isTransitioning;
 
     /* ----------  Unity ---------- */
     void Start()
@@ -61,8 +63,25 @@ public class MainMenuManager : MonoBehaviour
 
     void Update()
     {
+        // Ne pas traiter les inputs en cas de transition
+        if (isTransitioning)
+            return;
+            
+        // Gestion de la touche Escape
+        if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+        {
+            // Si les paramètres sont ouverts, revenir au menu principal
+            if (settingsPanel != null && settingsPanel.activeSelf)
+            {
+                CloseSettings();
+                return;
+            }
+        }
+        
+        // Permettre de sauter la vidéo avec Escape ou Espace
         if (isPlayingVideo && canSkipVideo &&
-            (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Space)))
+            (Keyboard.current?.escapeKey.wasPressedThisFrame == true || 
+             Keyboard.current?.spaceKey.wasPressedThisFrame == true))
         {
             SkipVideo();
         }
@@ -79,8 +98,9 @@ public class MainMenuManager : MonoBehaviour
 
     public void OpenSettings()
     {
-        if (settingsPanel == null) return;
-
+        if (settingsPanel == null || isTransitioning) return;
+        
+        isTransitioning = true;
         settingsPanel.SetActive(true);
         mainMenuPanel?.SetActive(false);
 
@@ -88,12 +108,15 @@ public class MainMenuManager : MonoBehaviour
         foreach (Transform child in transform)
             if (child.gameObject != settingsPanel && !child.IsChildOf(settingsPanel.transform))
                 child.gameObject.SetActive(false);
+                
+        isTransitioning = false;
     }
 
     public void CloseSettings()
     {
-        if (settingsPanel == null) return;
+        if (settingsPanel == null || isTransitioning) return;
 
+        isTransitioning = true;
         settingsPanel.SetActive(false);
         mainMenuPanel?.SetActive(true);
 
@@ -116,6 +139,7 @@ public class MainMenuManager : MonoBehaviour
         }
 
         ToggleMenuButtons(true);
+        isTransitioning = false;
     }
 
 
@@ -131,6 +155,7 @@ public class MainMenuManager : MonoBehaviour
     /* ----------  Intro vidéo ---------- */
     IEnumerator PlayIntroSequence()
     {
+        isTransitioning = true;
         yield return StartCoroutine(FadeCanvas(1f, 0f));
         HideAllUI();
 
@@ -143,13 +168,17 @@ public class MainMenuManager : MonoBehaviour
 
         SetupVideoPlayer();
         videoPlayer.Prepare();
-        while (!videoPlayer.isPrepared) yield return null;
-
+        
+        while (!videoPlayer.isPrepared) 
+            yield return null;
+            
         videoDisplay.gameObject.SetActive(true);
         videoPlayer.Play();
         isPlayingVideo = true;
+        isTransitioning = false;
 
-        while (isPlayingVideo) yield return null;
+        while (isPlayingVideo) 
+            yield return null;
 
         SceneManager.LoadScene(gameSceneName);
     }
@@ -202,6 +231,7 @@ public class MainMenuManager : MonoBehaviour
     /* ----------  Helpers ---------- */
     IEnumerator FadeAndLoadScene(string scene)
     {
+        isTransitioning = true;
         yield return StartCoroutine(FadeCanvas(1f, 0f));
         SceneManager.LoadScene(scene);
     }

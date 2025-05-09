@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class SettingsPanelMainMenu : MonoBehaviour
 {
@@ -17,6 +18,8 @@ public class SettingsPanelMainMenu : MonoBehaviour
 
     [Header("Buttons")]
     public Button homeButton;
+
+    private bool isTransitioning = false;
 
     /* ----------  Unity ---------- */
     void OnEnable()
@@ -52,6 +55,19 @@ public class SettingsPanelMainMenu : MonoBehaviour
 
         ApplyVolume(savedVolume);
     }
+    
+    void Update()
+    {
+        // Ne pas traiter les inputs pendant une transition
+        if (isTransitioning)
+            return;
+            
+        // Gérer l'appui sur la touche Escape
+        if (Keyboard.current?.escapeKey.wasPressedThisFrame == true)
+        {
+            ReturnToMainMenu();
+        }
+    }
 
     /* ----------  Callbacks ---------- */
     void OnVolumeChanged(float value)
@@ -71,6 +87,11 @@ public class SettingsPanelMainMenu : MonoBehaviour
 
     void ReturnToMainMenu()
     {
+        if (isTransitioning)
+            return;
+            
+        isTransitioning = true;
+        
         // 1. Désactive ce panneau
         gameObject.SetActive(false);
 
@@ -83,6 +104,8 @@ public class SettingsPanelMainMenu : MonoBehaviour
 
         // 3. Ré-affiche le menu principal
         mainMenuManager?.CloseSettings();
+        
+        isTransitioning = false;
     }
 
     /* ----------  Helpers ---------- */

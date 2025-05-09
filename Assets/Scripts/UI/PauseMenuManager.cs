@@ -8,7 +8,7 @@ public class PauseMenuManager : MonoBehaviour
     [Header("Références UI")]
     public GameObject pauseMenu;
     public GameObject settingsPanel;
-    public InventoryUI inventoryUI; // ✅ c’est bien le script, pas GameObject
+    public InventoryUI inventoryUI; // ✅ c'est bien le script, pas GameObject
 
     public CanvasGroup canvasGroup;
     public Button resumeButton;
@@ -19,6 +19,8 @@ public class PauseMenuManager : MonoBehaviour
     public float fadeDuration = 0.3f;
 
     private bool isPaused = false;
+    private bool isTransitioning = false;
+    
     public bool IsOpen() => pauseMenu.activeSelf;
 
     void Start()
@@ -36,15 +38,38 @@ public class PauseMenuManager : MonoBehaviour
 
     void Update()
     {
+        // Ne pas traiter les inputs pendant une transition
+        if (isTransitioning)
+            return;
+            
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (isPaused) ResumeGame();
-            else PauseGame();
+            // Si le panneau de paramètres est ouvert, revenir au menu pause 
+            if (settingsPanel.activeSelf)
+            {
+                CloseSettings();
+                return;
+            }
+            
+            // Si l'inventaire est ouvert, le fermer et revenir au menu pause
+            if (inventoryUI.IsOpen())
+            {
+                CloseInventory();
+                return;
+            }
+            
+            // Sinon, toggle le menu pause
+            if (isPaused) 
+                ResumeGame();
+            else 
+                PauseGame();
         }
 
         if (Keyboard.current.iKey.wasPressedThisFrame)
         {
-            if (settingsPanel.activeSelf) return;
+            // Si les paramètres sont ouverts, ne rien faire
+            if (settingsPanel.activeSelf) 
+                return;
 
             if (isPaused && !inventoryUI.IsOpen())
                 OpenInventory();
@@ -62,6 +87,7 @@ public class PauseMenuManager : MonoBehaviour
     {
         isPaused = true;
         pauseMenu.SetActive(true);
+        settingsPanel.SetActive(false);
         Time.timeScale = 0f;
         StartCoroutine(FadeCanvas(0f, 1f));
         Cursor.visible = true;
@@ -71,8 +97,7 @@ public class PauseMenuManager : MonoBehaviour
     public void ResumeGame()
     {
         isPaused = false;
-        StartCoroutine(FadeOutAndDisable());
-        Time.timeScale = 1f;
+        StartCoroutine(FadeOutAndResume());
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -97,24 +122,77 @@ public class PauseMenuManager : MonoBehaviour
 
     public void CloseInventory()
     {
-        inventoryUI.Close();
-        pauseMenu.SetActive(true);
+        if (inventoryUI.IsOpen())
+        {
+            // Réinitialiser l'état de l'interface de pause
+            isPaused = true;
+            Time.timeScale = 0f;
+            
+            // Réactiver immédiatement le menu pause
+            pauseMenu.SetActive(true);
+            canvasGroup.alpha = 1f;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
+            
+            // S'assurer que les boutons sont interactifs
+            EnableAllButtons();
+            
+            // S'assurer que le curseur est visible et libre
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+            
+            // Fermer l'inventaire en dernier
+            inventoryUI.Close();
+        }
     }
 
     public void ShowPauseMenuOnly()
     {
+        // S'assurer que le game flow est en pause
+        isPaused = true;
+        Time.timeScale = 0f;
+    
+        // S'assurer que tous les autres panneaux sont fermés
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+        
+        // S'assurer que le menu UI est complètement opérationnel
         pauseMenu.SetActive(true);
         canvasGroup.alpha = 1f;
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
-        Time.timeScale = 0f;
+        
+        // S'assurer que le curseur est visible et non verrouillé
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
-        isPaused = true;
+        
+        // Rafraîchir tous les boutons
+        EnableAllButtons();
+    }
+    
+    private void EnableAllButtons()
+    {
+        // Explicitement activer chaque bouton et l'assurer qu'il est interactif
+        if (resumeButton != null) 
+        {
+            resumeButton.gameObject.SetActive(true);
+            resumeButton.interactable = true;
+        }
+        if (settingsButton != null) 
+        {
+            settingsButton.gameObject.SetActive(true);
+            settingsButton.interactable = true;
+        }
+        if (inventoryButton != null) 
+        {
+            inventoryButton.gameObject.SetActive(true);
+            inventoryButton.interactable = true;
+        }
     }
 
     private IEnumerator FadeCanvas(float from, float to)
     {
+        isTransitioning = true;
         float elapsed = 0f;
         canvasGroup.interactable = true;
         canvasGroup.blocksRaycasts = true;
@@ -125,13 +203,18 @@ public class PauseMenuManager : MonoBehaviour
             yield return null;
         }
         canvasGroup.alpha = to;
+        isTransitioning = false;
     }
 
-    private IEnumerator FadeOutAndDisable()
+    private IEnumerator FadeOutAndResume()
     {
-        yield return FadeCanvas(1f, 0f);
+        isTransitioning = true;
+        yield return StartCoroutine(FadeCanvas(1f, 0f));
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
         pauseMenu.SetActive(false);
+        settingsPanel.SetActive(false);
+        Time.timeScale = 1f;
+        isTransitioning = false;
     }
 }
