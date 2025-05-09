@@ -972,8 +972,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   controller: {fileID: 73058942}
   cameraTransform: {fileID: 220747308}
-  bobAmplitude: 0.06
-  bobSpeedFactor: 4
+  bobAmplitude: 0.1
+  bobSpeedFactor: 2
   sideAmplitude: 0.04
   idleAmplitude: 0.008
   idleSpeed: 1.2
@@ -11205,6 +11205,30 @@ PrefabInstance:
       value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 6229596110334016394, guid: 5a87c5c2c5b29489c95557d54e9b64a4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922533286160041268, guid: 5a87c5c2c5b29489c95557d54e9b64a4, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922533286160041268, guid: 5a87c5c2c5b29489c95557d54e9b64a4, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922533286160041268, guid: 5a87c5c2c5b29489c95557d54e9b64a4, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922533286160041268, guid: 5a87c5c2c5b29489c95557d54e9b64a4, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922533286160041268, guid: 5a87c5c2c5b29489c95557d54e9b64a4, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922533286160041268, guid: 5a87c5c2c5b29489c95557d54e9b64a4, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
