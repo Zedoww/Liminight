@@ -51,10 +51,11 @@ public class PauseMenuManager : MonoBehaviour
                 return;
             }
             
-            // Si l'inventaire est ouvert, le fermer et revenir au menu pause
+            // Si l'inventaire est ouvert, le fermer et reprendre le jeu directement
             if (inventoryUI.IsOpen())
             {
-                CloseInventory();
+                inventoryUI.Close();
+                ResumeGame();
                 return;
             }
             
@@ -71,12 +72,20 @@ public class PauseMenuManager : MonoBehaviour
             if (settingsPanel.activeSelf) 
                 return;
 
-            if (isPaused && !inventoryUI.IsOpen())
-                OpenInventory();
-            else if (inventoryUI.IsOpen())
-                CloseInventory();
-            else if (!isPaused)
+            if (inventoryUI.IsOpen())
             {
+                // If inventory is open, close it and resume game
+                inventoryUI.Close();
+                ResumeGame();
+            }
+            else if (isPaused)
+            {
+                // If paused, open inventory
+                OpenInventory();
+            }
+            else
+            {
+                // If in gameplay, pause and open inventory
                 PauseGame();
                 OpenInventory();
             }
@@ -98,8 +107,10 @@ public class PauseMenuManager : MonoBehaviour
     {
         isPaused = false;
         StartCoroutine(FadeOutAndResume());
+        // Immediately restore player control
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1f;
     }
 
     public void OpenSettings()
@@ -124,25 +135,9 @@ public class PauseMenuManager : MonoBehaviour
     {
         if (inventoryUI.IsOpen())
         {
-            // Réinitialiser l'état de l'interface de pause
-            isPaused = true;
-            Time.timeScale = 0f;
-            
-            // Réactiver immédiatement le menu pause
-            pauseMenu.SetActive(true);
-            canvasGroup.alpha = 1f;
-            canvasGroup.interactable = true;
-            canvasGroup.blocksRaycasts = true;
-            
-            // S'assurer que les boutons sont interactifs
-            EnableAllButtons();
-            
-            // S'assurer que le curseur est visible et libre
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            
-            // Fermer l'inventaire en dernier
+            // With the new direct return to gameplay, we should also resume
             inventoryUI.Close();
+            ResumeGame();
         }
     }
 
@@ -214,7 +209,7 @@ public class PauseMenuManager : MonoBehaviour
         canvasGroup.blocksRaycasts = false;
         pauseMenu.SetActive(false);
         settingsPanel.SetActive(false);
-        Time.timeScale = 1f;
+        // Time.timeScale is now set in ResumeGame immediately
         isTransitioning = false;
     }
 }

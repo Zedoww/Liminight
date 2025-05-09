@@ -10,7 +10,7 @@ using System.Collections;
 public class DoorOpener : MonoBehaviour
 {
     [Header("Animation")]
-    public float openAngle = 90f;          // Y-axis angle when fully opened
+    public float openAngle = -90f;          // Y-axis angle when fully opened
     public float speed = 2f;               // Lerp speed
 
     [Header("Squeak sound")]
@@ -19,12 +19,25 @@ public class DoorOpener : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float volumeMin = 0.8f;
     [SerializeField, Range(0f, 1f)] private float volumeMax = 1f;
 
+    [Header("État Porte")]
+    [Tooltip("Si la porte est verrouillée au démarrage")]
+    public bool isLockedByDefault = true;
+    [Tooltip("ID unique de la porte pour l'associer à un lecteur de badge")]
+    public string doorID = "door01";
+    [Tooltip("Distance maximale à laquelle le joueur peut interagir avec la porte")]
+    public float maxInteractionDistance = 3f;
+
     private bool isOpen;
     private bool isAnimating;
     private Quaternion closedRotation;
     private Quaternion openRotation;
+    private bool isLocked;
 
     private AudioSource audioSource;
+
+    // Référence au collider pour les interactions
+    private Collider doorCollider;
+    private Transform playerTransform;
 
     private void Awake()
     {
@@ -35,12 +48,43 @@ public class DoorOpener : MonoBehaviour
         // Ensure we have an AudioSource and configure it like in HeadBob
         audioSource = GetComponent<AudioSource>();
         ConfigureAudioSource(audioSource);
+
+        isLocked = isLockedByDefault;
+        
+        // Récupérer le collider pour détecter les clics
+        doorCollider = GetComponent<Collider>();
+        if (doorCollider == null)
+        {
+            doorCollider = gameObject.AddComponent<BoxCollider>();
+            Debug.Log("DoorOpener: BoxCollider ajouté automatiquement.");
+        }
+        
+        // Trouver la caméra du joueur pour les vérifications de distance
+        playerTransform = Camera.main.transform;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && !isAnimating)
-            StartCoroutine(AnimateDoor());
+        // Détection du clic sur la porte avec vérification de distance
+        if (Input.GetMouseButtonDown(0) && !isAnimating)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            
+            if (Physics.Raycast(ray, out hit) && hit.collider == doorCollider)
+            {
+                // Vérification de la distance
+                float distanceToPlayer = Vector3.Distance(hit.point, playerTransform.position);
+                if (distanceToPlayer <= maxInteractionDistance)
+                {
+                    TryToggleDoor();
+                }
+                else
+                {
+                    Debug.Log("Trop loin pour interagir avec la porte.");
+                }
+            }
+        }
     }
 
     private IEnumerator AnimateDoor()
@@ -85,6 +129,38 @@ public class DoorOpener : MonoBehaviour
         source.playOnAwake  = false;
     }
 
-    /// <summary>External method for UI / triggers.</summary>
-    public void Toggle() => StartCoroutine(AnimateDoor());
+    // Essaie d'ouvrir/fermer la porte
+    public void TryToggleDoor()
+    {
+        if (isLocked)
+        {
+            // Jouer un son de porte verrouillée ou feedback visuel
+            Debug.Log("Cette porte est verrouillée.");
+            // Tu peux ajouter ici un son de porte verrouillée
+            return;
+        }
+        
+        StartCoroutine(AnimateDoor());
+    }
+
+    // Méthode appelée par le lecteur de badge pour déverrouiller
+    public void Unlock()
+    {
+        isLocked = false;
+        // Ajouter ici du son/feedback de déverrouillage
+        Debug.Log("Porte déverrouillée: " + doorID);
+    }
+    
+    // Pour verrouiller à nouveau
+    public void Lock()
+    {
+        isLocked = true;
+        Debug.Log("Porte verrouillée: " + doorID);
+    }
+    
+    // Pour vérifier l'état actuel
+    public bool IsLocked()
+    {
+        return isLocked;
+    }
 }

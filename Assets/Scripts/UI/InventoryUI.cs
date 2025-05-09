@@ -60,17 +60,10 @@ public class InventoryUI : MonoBehaviour
         isTransitioning = true;
         inventoryPanel.SetActive(false);
         
-        // Ne pas modifier Time.timeScale ici, laisser le contrôle
-        // au PauseMenuManager ou au système appelant
-        
-        // Ne modifier ces paramètres que si on revient au jeu
-        // et pas quand on revient au menu pause
-        if (pauseMenuUI == null || !pauseMenuUI.IsOpen())
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            Time.timeScale = 1f;
-        }
+        // Restore gameplay state regardless of pause menu
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Time.timeScale = 1f;
         
         isTransitioning = false;
     }
@@ -129,10 +122,10 @@ public class InventoryUI : MonoBehaviour
             Toggle();
         }
 
-        // Quand l'inventaire est ouvert, ESC le ferme et revient au menu pause
+        // Quand l'inventaire est ouvert, ESC le ferme et revient au jeu directement
         if (inventoryPanel.activeSelf && Keyboard.current?.escapeKey.wasPressedThisFrame == true)
         {
-            CloseInventoryToMenu();
+            Close();
         }
     }
 }

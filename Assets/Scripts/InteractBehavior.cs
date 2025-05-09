@@ -48,13 +48,28 @@ public class InteractBehavior : MonoBehaviour
             {
                 interactPrompt.Show();
 
+                // Interaction avec le lecteur de badge
                 if (hit.collider.TryGetComponent<CardReader>(out var cardReader))
                 {
                     if (inventory.Has(cardReader.RequiredItemName))
-                        interactPrompt.SetText("Ouvrir la porte (F)");
+                    {
+                        if (cardReader.IsActivated())
+                            interactPrompt.SetText("Porte déverrouillée");
+                        else
+                            interactPrompt.SetText("Déverrouiller la porte (F)");
+                    }
                     else
                         interactPrompt.SetText("Il vous faut un badge");
                 }
+                // Interaction avec les portes
+                else if (hit.collider.TryGetComponent<DoorOpener>(out var doorOpener))
+                {
+                    if (doorOpener.IsLocked())
+                        interactPrompt.SetText("Cette porte est verrouillée");
+                    else
+                        interactPrompt.SetText("Ouvrir/Fermer (Clic gauche)");
+                }
+                // Objets ramassables
                 else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                 {
                     interactPrompt.SetText("Ramasser (F)");

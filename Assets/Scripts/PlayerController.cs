@@ -160,7 +160,7 @@ public class PlayerController : MonoBehaviour
                 currentStamina = maxStamina;
                 if (isExhausted)
                 {
-                    isExhausted = false;
+                isExhausted = false;
                 }
             }
         }
