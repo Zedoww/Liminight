@@ -184,7 +184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98042d5ae4b1f415db9363d39e368960, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  openAngle: 90
+  openAngle: -90
   speed: 2
   squeakAudio: {fileID: 8300000, guid: 860f6a4b733b84835b5d5011c0c3982a, type: 3}
   pitchVariation: 0.05
