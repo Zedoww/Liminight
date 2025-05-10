@@ -190,7 +190,7 @@ MonoBehaviour:
   pitchVariation: 0.05
   volumeMin: 0.8
   volumeMax: 1
-  isLockedByDefault: 1
+  isLockedByDefault: 0
   doorID: door01
   maxInteractionDistance: 3
 --- !u!82 &183604331127041408
