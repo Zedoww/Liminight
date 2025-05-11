@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class ItemButton : MonoBehaviour
 {
@@ -11,6 +12,16 @@ public class ItemButton : MonoBehaviour
 
     int myIndex;
     InventoryUI ui;
+    Button button;
+
+    private void Awake()
+    {
+        button = GetComponent<Button>();
+        if (button != null)
+        {
+            button.onClick.AddListener(OnClick);
+        }
+    }
 
     public void Init(InventoryUI inventoryUI, int index, InventorySlot slot)
     {
@@ -21,7 +32,11 @@ public class ItemButton : MonoBehaviour
 
         icon.enabled = hasItem;
         if (hasItem) icon.sprite = slot.data.icon;
-        GetComponent<Button>().interactable = hasItem;
+        
+        if (button == null)
+            button = GetComponent<Button>();
+            
+        button.interactable = hasItem;
 
         selectedFrame.enabled = false;
 
@@ -41,6 +56,14 @@ public class ItemButton : MonoBehaviour
 
     public void OnClick()
     {
-        ui.OnItemClicked(myIndex);
+        Debug.Log("Item clicked: " + myIndex);
+        if (ui != null)
+        {
+            ui.OnItemClicked(myIndex);
+        }
+        else
+        {
+            Debug.LogError("InventoryUI reference is null");
+        }
     }
 }
