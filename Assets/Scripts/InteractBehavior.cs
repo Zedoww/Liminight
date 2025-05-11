@@ -72,20 +72,15 @@ public class InteractBehavior : MonoBehaviour
                 // Objets ramassables
                 else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                 {
-                    // Vérifier si c'est un document ou un objet normal
-                    if (!string.IsNullOrEmpty(holder.itemData.documentContent))
-                    {
-                        interactPrompt.SetText("Ramasser le document (F)");
-                    }
-                    else if (!string.IsNullOrEmpty(holder.itemData.shortDescription))
-                    {
-                        interactPrompt.SetText(holder.itemData.shortDescription + " (F)");
-                    }
-                    else
-                    {
-                        interactPrompt.SetText("Ramasser (F)");
-                    }
+                    // On essaie d’abord le nom défini dans le scriptable object,
+                    // sinon on prend le nom du prefab dans la scène
+                    string nomObjet = holder.itemData != null
+                                      ? holder.itemData.itemName   // ou .displayName, selon ta classe
+                                      : holder.gameObject.name;
+
+                    interactPrompt.SetText($"Ramasser {nomObjet} (F)");
                 }
+
             }
             else
             {

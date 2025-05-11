@@ -39,11 +39,18 @@ public class InventoryUI : MonoBehaviour
         if (itemDetailsPanel != null)
             itemDetailsPanel.SetActive(false);
             
+        // Assurer que les écouteurs d'événements ne sont attachés qu'une seule fois
         if (closeDetailsButton != null)
+        {
+            closeDetailsButton.onClick.RemoveAllListeners();
             closeDetailsButton.onClick.AddListener(CloseItemDetails);
+        }
             
         if (returnToInventoryButton != null)
+        {
+            returnToInventoryButton.onClick.RemoveAllListeners();
             returnToInventoryButton.onClick.AddListener(ReturnToInventory);
+        }
             
         inventory.onItemAdded.AddListener(_ => Repaint());
     }
@@ -175,14 +182,24 @@ public class InventoryUI : MonoBehaviour
     
     private void CloseItemDetails()
     {
+        Debug.Log("CloseItemDetails appelé - bouton Close cliqué");
+        
         if (itemDetailsPanel != null)
             itemDetailsPanel.SetActive(false);
-            
-        Close();
+        
+        // Reopen the inventory panel instead of closing everything
+        inventoryPanel.SetActive(true);
+        
+        // Ensure the game remains paused and the cursor is visible
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        Time.timeScale = 0f;
     }
     
     private void ReturnToInventory()
     {
+        Debug.Log("ReturnToInventory appelé - bouton Return cliqué");
+        
         if (itemDetailsPanel != null)
             itemDetailsPanel.SetActive(false);
             

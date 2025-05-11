@@ -8,7 +8,7 @@ public class PauseMenuManager : MonoBehaviour
     [Header("Références UI")]
     public GameObject pauseMenu;
     public GameObject settingsPanel;
-    public InventoryUI inventoryUI; // ✅ c'est bien le script, pas GameObject
+    public InventoryUI inventoryUI;
 
     public CanvasGroup canvasGroup;
     public Button resumeButton;
