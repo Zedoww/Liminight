@@ -38,6 +38,13 @@ public class DoorOpener : MonoBehaviour
     // Référence au collider pour les interactions
     private Collider doorCollider;
     private Transform playerTransform;
+    
+    // Référence au menu pause pour vérifier si un menu est ouvert
+    private PauseMenuManager pauseMenuManager;
+    private InventoryUI inventoryUI;
+    
+    // Pour gérer l'activation/désactivation des entrées
+    private bool inputEnabled = true;
 
     private void Awake()
     {
@@ -62,9 +69,39 @@ public class DoorOpener : MonoBehaviour
         // Trouver la caméra du joueur pour les vérifications de distance
         playerTransform = Camera.main.transform;
     }
+    
+    private void Start()
+    {
+        // Récupérer les références aux gestionnaires de menu
+        pauseMenuManager = FindFirstObjectByType<PauseMenuManager>();
+        inventoryUI = FindFirstObjectByType<InventoryUI>();
+    }
 
     private void Update()
     {
+        // Si les entrées sont désactivées, ne rien faire
+        if (!inputEnabled)
+            return;
+            
+        // Vérifier si un menu est ouvert
+        bool isAnyMenuOpen = false;
+        
+        if (pauseMenuManager != null)
+        {
+            isAnyMenuOpen = pauseMenuManager.IsOpen();
+        }
+        
+        if (inventoryUI != null && !isAnyMenuOpen)
+        {
+            isAnyMenuOpen = inventoryUI.IsOpen();
+        }
+        
+        // Ne pas traiter les clics si un menu est ouvert
+        if (isAnyMenuOpen)
+        {
+            return;
+        }
+        
         // Détection du clic sur la porte avec vérification de distance
         if (Input.GetMouseButtonDown(0) && !isAnimating)
         {
@@ -85,6 +122,12 @@ public class DoorOpener : MonoBehaviour
                 }
             }
         }
+    }
+    
+    // Méthode appelée par l'InputManager pour activer/désactiver les entrées
+    public void EnableInput(bool enable)
+    {
+        inputEnabled = enable;
     }
 
     private IEnumerator AnimateDoor()

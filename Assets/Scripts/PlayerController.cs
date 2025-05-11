@@ -12,10 +12,10 @@ public class PlayerController : MonoBehaviour
     public float gravity = 9.81f;
 
     [Header("Hauteur & Crouch")]
-    public float standHeight = 2f;
-    public float crouchHeight = 1f;
-    public Vector3 standCenter = new Vector3(0f, 1f, 0f);
-    public Vector3 crouchCenter = new Vector3(0f, 0.5f, 0f);
+    public float standHeight = 1.7f;
+    public float crouchHeight = 0.9f;
+    public Vector3 standCenter = new Vector3(0f, 0.85f, 0f);
+    public Vector3 crouchCenter = new Vector3(0f, 0.45f, 0f);
     public float crouchTransitionTime = 0.3f;
 
     [Header("Caméra")]
@@ -53,6 +53,10 @@ public class PlayerController : MonoBehaviour
     private float exhaustedStartTime = -999f;
     private bool wasExhaustedLastFrame = false;
     private float currentSpeedMultiplier = 1f;
+    
+    // Référence au menu pause pour vérifier si un menu est ouvert
+    private PauseMenuManager pauseMenuManager;
+    private InventoryUI inventoryUI;
 
     // Crouch lerp
     private bool isTransitioning;
@@ -71,16 +75,39 @@ public class PlayerController : MonoBehaviour
         // Curseur
         Cursor.lockState = CursorLockMode.Locked;
         if (playerCamera == null) playerCamera = Camera.main;
-
-        // Position Y initiale
-
-        // Crouch initial
-        characterController.height = standHeight;
-        characterController.center = standCenter;
+        
+        // Récupérer les valeurs initiales du Character Controller pour l'accroupissement
+        standHeight = characterController.height;
+        standCenter = characterController.center;
+        crouchHeight = standHeight * 0.5f;  // La moitié de la hauteur debout
+        crouchCenter = new Vector3(standCenter.x, standCenter.y * 0.5f, standCenter.z);
+        
+        // Récupérer les références aux gestionnaires de menu
+        pauseMenuManager = FindFirstObjectByType<PauseMenuManager>();
+        inventoryUI = FindFirstObjectByType<InventoryUI>();
     }
 
     void Update()
     {
+        // Vérifier si un menu est ouvert
+        bool isAnyMenuOpen = false;
+        
+        if (pauseMenuManager != null)
+        {
+            isAnyMenuOpen = pauseMenuManager.IsOpen();
+        }
+        
+        if (inventoryUI != null)
+        {
+            isAnyMenuOpen = isAnyMenuOpen || inventoryUI.IsOpen();
+        }
+        
+        // Ne pas traiter les mouvements du joueur si un menu est ouvert
+        if (isAnyMenuOpen)
+        {
+            return;
+        }
+        
         HandleCrouchInput();
         HandleStamina();
         UpdateExhaustedEffect();

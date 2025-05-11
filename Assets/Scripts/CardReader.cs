@@ -19,6 +19,13 @@ public class CardReader : MonoBehaviour
     [SerializeField] private AudioClip accessDeniedSound;
     [SerializeField] private GameObject successEffect;
     private AudioSource audioSource;
+    
+    // Référence au menu pause pour vérifier si un menu est ouvert
+    private PauseMenuManager pauseMenuManager;
+    private InventoryUI inventoryUI;
+    
+    // Pour gérer l'activation/désactivation des entrées
+    private bool inputEnabled = true;
 
     void Awake()
     {
@@ -52,11 +59,44 @@ public class CardReader : MonoBehaviour
         // Désactiver les effets visuels au démarrage
         if (successEffect != null)
             successEffect.SetActive(false);
+            
+        // Récupérer les références aux gestionnaires de menu
+        pauseMenuManager = FindFirstObjectByType<PauseMenuManager>();
+        inventoryUI = FindFirstObjectByType<InventoryUI>();
+    }
+    
+    // Méthode appelée par l'InputManager pour activer/désactiver les entrées
+    public void EnableInput(bool enable)
+    {
+        inputEnabled = enable;
     }
 
     void Update()
     {
         if (isActivated) return;
+        
+        // Si les entrées sont désactivées, ne rien faire
+        if (!inputEnabled)
+            return;
+        
+        // Vérifier si un menu est ouvert
+        bool isAnyMenuOpen = false;
+        
+        if (pauseMenuManager != null)
+        {
+            isAnyMenuOpen = pauseMenuManager.IsOpen();
+        }
+        
+        if (inventoryUI != null && !isAnyMenuOpen)
+        {
+            isAnyMenuOpen = inventoryUI.IsOpen();
+        }
+        
+        // Ne pas traiter les interactions si un menu est ouvert
+        if (isAnyMenuOpen)
+        {
+            return;
+        }
 
         // Raycast depuis le centre de l'écran
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));

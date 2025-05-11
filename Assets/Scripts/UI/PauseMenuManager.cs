@@ -21,6 +21,9 @@ public class PauseMenuManager : MonoBehaviour
     private bool isPaused = false;
     private bool isTransitioning = false;
     
+    // Référence à l'InputManager
+    private InputManager inputManager;
+    
     public bool IsOpen() => pauseMenu.activeSelf;
 
     void Start()
@@ -34,6 +37,9 @@ public class PauseMenuManager : MonoBehaviour
         canvasGroup.alpha = 0;
         canvasGroup.interactable = false;
         canvasGroup.blocksRaycasts = false;
+        
+        // Récupérer la référence à l'InputManager
+        inputManager = InputManager.Instance;
     }
 
     void Update()
@@ -109,6 +115,10 @@ public class PauseMenuManager : MonoBehaviour
         StartCoroutine(FadeCanvas(0f, 1f));
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
+        
+        // Désactiver les entrées du joueur via l'InputManager
+        if (inputManager != null)
+            inputManager.DisableAllInputs();
     }
 
     public void ResumeGame()
@@ -119,6 +129,10 @@ public class PauseMenuManager : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1f;
+        
+        // Réactiver les entrées du joueur via l'InputManager
+        if (inputManager != null)
+            inputManager.EnableAllInputs();
     }
 
     public void OpenSettings()
@@ -137,6 +151,10 @@ public class PauseMenuManager : MonoBehaviour
     {
         pauseMenu.SetActive(false);
         inventoryUI.Open();
+        
+        // Désactiver les entrées du joueur via l'InputManager
+        if (inputManager != null)
+            inputManager.DisableAllInputs();
     }
 
     public void CloseInventory()
@@ -146,6 +164,10 @@ public class PauseMenuManager : MonoBehaviour
             // With the new direct return to gameplay, we should also resume
             inventoryUI.Close();
             ResumeGame();
+            
+            // Réactiver les entrées du joueur via l'InputManager
+            if (inputManager != null)
+                inputManager.EnableAllInputs();
         }
     }
 
@@ -171,6 +193,10 @@ public class PauseMenuManager : MonoBehaviour
         
         // Rafraîchir tous les boutons
         EnableAllButtons();
+        
+        // Désactiver les entrées du joueur via l'InputManager
+        if (inputManager != null)
+            inputManager.DisableAllInputs();
     }
     
     private void EnableAllButtons()

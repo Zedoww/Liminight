@@ -12,6 +12,10 @@ public class InteractBehavior : MonoBehaviour
     public AudioClip equipSound;
 
     private AudioSource audioSource;
+    
+    // Référence au menu pause pour vérifier si un menu est ouvert
+    private PauseMenuManager pauseMenuManager;
+    private InventoryUI inventoryUI;
 
     void Start()
     {
@@ -27,10 +31,40 @@ public class InteractBehavior : MonoBehaviour
 
         audioSource.spatialBlend = 0f;
         audioSource.playOnAwake = false;
+        
+        // Récupérer les références aux gestionnaires de menu
+        pauseMenuManager = FindFirstObjectByType<PauseMenuManager>();
+        inventoryUI = FindFirstObjectByType<InventoryUI>();
     }
 
     void Update()
     {
+        // Vérifier si un menu est ouvert
+        bool isAnyMenuOpen = false;
+        
+        if (pauseMenuManager != null)
+        {
+            isAnyMenuOpen = pauseMenuManager.IsOpen();
+        }
+        
+        if (inventoryUI != null)
+        {
+            isAnyMenuOpen = isAnyMenuOpen || inventoryUI.IsOpen();
+        }
+        
+        // Ne pas traiter les interactions si un menu est ouvert
+        if (isAnyMenuOpen)
+        {
+            // Cacher le crosshair et le prompt d'interaction quand un menu est ouvert
+            if (crosshairAnimator != null)
+                crosshairAnimator.Hide();
+                
+            if (interactPrompt != null)
+                interactPrompt.Hide();
+                
+            return;
+        }
+        
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         bool hitInteractable = Physics.Raycast(ray, out RaycastHit hit, pickupRange, pickableMask);
 
@@ -72,7 +106,7 @@ public class InteractBehavior : MonoBehaviour
                 // Objets ramassables
                 else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                 {
-                    // On essaie d’abord le nom défini dans le scriptable object,
+                    // On essaie d'abord le nom défini dans le scriptable object,
                     // sinon on prend le nom du prefab dans la scène
                     string nomObjet = holder.itemData != null
                                       ? holder.itemData.itemName   // ou .displayName, selon ta classe

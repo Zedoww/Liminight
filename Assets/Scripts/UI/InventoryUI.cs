@@ -31,6 +31,9 @@ public class InventoryUI : MonoBehaviour
     private bool isTransitioning = false;
     readonly List<ItemButton> buttons = new();
     private int selectedItemIndex = -1;
+    
+    // Référence à l'InputManager
+    private InputManager inputManager;
 
     void Awake()
     {
@@ -53,6 +56,9 @@ public class InventoryUI : MonoBehaviour
         }
             
         inventory.onItemAdded.AddListener(_ => Repaint());
+        
+        // Récupérer la référence à l'InputManager
+        inputManager = InputManager.Instance;
     }
 
     public void Toggle()
@@ -82,6 +88,11 @@ public class InventoryUI : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         Time.timeScale = 0f;
+        
+        // Désactiver les entrées du joueur via l'InputManager
+        if (inputManager != null)
+            inputManager.DisableAllInputs();
+            
         isTransitioning = false;
     }
 
@@ -100,6 +111,10 @@ public class InventoryUI : MonoBehaviour
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
         Time.timeScale = 1f;
+        
+        // Réactiver les entrées du joueur via l'InputManager
+        if (inputManager != null)
+            inputManager.EnableAllInputs();
         
         isTransitioning = false;
     }
