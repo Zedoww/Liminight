@@ -21,9 +21,9 @@ public class DoorOpener : MonoBehaviour
 
     [Header("État Porte")]
     [Tooltip("Si la porte est verrouillée au démarrage")]
-    public bool isLockedByDefault = true;
+    public bool isLockedByDefault = false;
     [Tooltip("ID unique de la porte pour l'associer à un lecteur de badge")]
-    public string doorID = "door01";
+    public string doorID;
     [Tooltip("Distance maximale à laquelle le joueur peut interagir avec la porte")]
     public float maxInteractionDistance = 3f;
 
