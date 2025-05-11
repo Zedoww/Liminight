@@ -72,7 +72,19 @@ public class InteractBehavior : MonoBehaviour
                 // Objets ramassables
                 else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                 {
-                    interactPrompt.SetText("Ramasser (F)");
+                    // Vérifier si c'est un document ou un objet normal
+                    if (!string.IsNullOrEmpty(holder.itemData.documentContent))
+                    {
+                        interactPrompt.SetText("Ramasser le document (F)");
+                    }
+                    else if (!string.IsNullOrEmpty(holder.itemData.shortDescription))
+                    {
+                        interactPrompt.SetText(holder.itemData.shortDescription + " (F)");
+                    }
+                    else
+                    {
+                        interactPrompt.SetText("Ramasser (F)");
+                    }
                 }
             }
             else

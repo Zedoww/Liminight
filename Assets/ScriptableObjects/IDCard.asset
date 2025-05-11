@@ -16,5 +16,11 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: fd1bc2fb77aee481c9a7bcc191358762, type: 3}
   prefab: {fileID: 4510465884476103704, guid: 3ed2381f31e924347aba2ec1cdfa0e45, type: 3}
   iconScale: 0.76
+  shortDescription: Old access badge. Worn out. Still scans.
+  documentContent: "A faded ID card with the logo of the MIRAGE program, partially
+    scratched off. The photo is gone\u2014peeled off, or maybe torn. No name, just
+    a serial number and a magnetic strip that somehow still works. Holding it gives
+    you a strange feeling\u2026 like you\u2019ve used it before. Maybe you had clearance.
+    Maybe you still do."
   holdPositionOffset: {x: 0.15, y: -0.171, z: 0.215}
   holdRotationOffset: {x: -19.091, y: 72.766, z: 34.29}

@@ -44,6 +44,14 @@ public class PauseMenuManager : MonoBehaviour
             
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
+            // Si le panneau de détails d'objets est ouvert, forcer l'appel à HandleEscapeKey
+            if (inventoryUI != null && inventoryUI.IsDetailsOpen())
+            {
+                Debug.Log("PauseMenuManager: Détection du panneau de détails ouvert, appel à HandleEscapeKey");
+                inventoryUI.HandleEscapeKey();
+                return;
+            }
+            
             // Si le panneau de paramètres est ouvert, revenir au menu pause 
             if (settingsPanel.activeSelf)
             {

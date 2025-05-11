@@ -16,5 +16,10 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 2fbe9090754a44086900f2c6b8f17d0a, type: 3}
   prefab: {fileID: 4353188434152716178, guid: 456ba7ff90ddb4cdb8eca00d3248883c, type: 3}
   iconScale: 0.6
+  shortDescription: Electronic fuse. Looks recently replaced.
+  documentContent: "A small but crucial fuse. Slightly warm to the touch. It doesn\u2019t
+    match the rest of the facility\u2019s outdated hardware\u2014someone\u2019s been
+    here, recently. It might restore power\u2026 or trigger something you\u2019re
+    not ready for. You\u2019ll need several to reactivate the control room."
   holdPositionOffset: {x: 0.1, y: -0.092, z: 0.287}
   holdRotationOffset: {x: -28.658, y: 192.597, z: -410.168}
