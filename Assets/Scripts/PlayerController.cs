@@ -73,8 +73,6 @@ public class PlayerController : MonoBehaviour
         if (playerCamera == null) playerCamera = Camera.main;
 
         // Position Y initiale
-        Vector3 p = transform.position; p.y = 1f;
-        transform.position = p;
 
         // Crouch initial
         characterController.height = standHeight;
