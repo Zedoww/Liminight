@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dd18755bad44a44b22ad6223bd1a2b, type: 3}
+  m_Name: NoteDirective
+  m_EditorClassIdentifier: 
+  itemName: Document
+  icon: {fileID: 21300000, guid: 696722df27de24341a24ee3bc6824ea4, type: 3}
+  prefab: {fileID: 0}
+  iconScale: 0.8
+  shortDescription: "[CONFIDENTIAL \u2013 Maintenance Directive]"
+  documentContent: "Level -10 Emergency Protocol Activation\n\nDue to recent system
+    compromise, emergency power restoration protocol is in effect. All MIRAGE facility
+    staff must adhere strictly to following guidelines:\n\nFuse retrieval: Three
+    critical fuses placed strategically to limit Subject XX\u2019s unsupervised access
+    (Morgue, Archives, Medical Storage).\n\nSecurity Measures: Security Card Level
+    2 mandatory for Archives access\u2014currently held by Medical Supervisor Dr.
+    Harper (Room D4).\n\nBolt Cutters: Securely stored in Storage. \n\nNote: Facility
+    doors auto-lock upon power initiation\u2014staff must ensure they have all fuses
+    before proceeding.\n\nDocument Status: Internal Use Only."
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}

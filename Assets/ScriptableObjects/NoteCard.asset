@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dd18755bad44a44b22ad6223bd1a2b, type: 3}
+  m_Name: NoteCard
+  m_EditorClassIdentifier: 
+  itemName: Document
+  icon: {fileID: 21300000, guid: 696722df27de24341a24ee3bc6824ea4, type: 3}
+  prefab: {fileID: 0}
+  iconScale: 0.8
+  shortDescription: "[CONFIDENTIAL \u2013 Personal Log: Dr. Harper]"
+  documentContent: "Subject: Security breach concerns\n\nI've left the Security Card
+    on the S-09 body in the morgue due to sudden blackout event and auditory anomalies.
+    Recommend immediate retrieval.\n\nSubject XX's loop awareness is advancing alarmingly\u2014potential
+    sabotage imminent. Increased vigilance required when initiating Maintenance Room
+    power restoration. Lockdown protocols will automatically engage post fuse insertion.\n\nRemember
+    bolt cutters\u2014critical equipment secured behind chained lockbox. Code visibility
+    contingent on restored electrical systems.\n\nI question the ethics of continuing
+    this experiment, given the escalating psychological toll. Recommend immediate
+    project reassessment.\n\nDocument Status: Personal, Confidential."
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}

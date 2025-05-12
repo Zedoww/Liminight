@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dd18755bad44a44b22ad6223bd1a2b, type: 3}
+  m_Name: NoteS12
+  m_EditorClassIdentifier: 
+  itemName: Document
+  icon: {fileID: 21300000, guid: 696722df27de24341a24ee3bc6824ea4, type: 3}
+  prefab: {fileID: 0}
+  iconScale: 0.8
+  shortDescription: "[CONFIDENTIAL \u2013 Patient Log Excerpt: Subject S-12]"
+  documentContent: "MIRAGE Environment Observations (Cycle 16):\n\nSubject reports
+    severe spatial-temporal disorientation, persistent auditory hallucinations, and
+    shadow figures manifesting primarily under reduced lighting conditions.\n\nSubject
+    S-12 discovered two fuses independently but experienced severe anxiety upon failure
+    to retrieve third fuse (secured behind Security Level 2). Almond-based stabilizer
+    reportedly mitigates psychological distress temporarily.\n\nCritical observations
+    indicate psychological conditioning via tailored environmental fears\u2014tight
+    spaces, isolation, repetitive architecture.\n\nRecommendations: Strict containment
+    of essential retrieval items to maintain procedural integrity.\n\nDocument Status:
+    Restricted \u2013 MIRAGE staff only."
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}

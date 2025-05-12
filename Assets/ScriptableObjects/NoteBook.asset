@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8dd18755bad44a44b22ad6223bd1a2b, type: 3}
   m_Name: NoteBook
   m_EditorClassIdentifier: 
-  itemName: NoteBook
+  itemName: Document
   icon: {fileID: 21300000, guid: 696722df27de24341a24ee3bc6824ea4, type: 3}
   prefab: {fileID: 0}
   iconScale: 0.8

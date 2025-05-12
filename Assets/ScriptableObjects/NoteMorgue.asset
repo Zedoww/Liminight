@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dd18755bad44a44b22ad6223bd1a2b, type: 3}
+  m_Name: NoteMorgue
+  m_EditorClassIdentifier: 
+  itemName: Document
+  icon: {fileID: 21300000, guid: 696722df27de24341a24ee3bc6824ea4, type: 3}
+  prefab: {fileID: 0}
+  iconScale: 0.8
+  shortDescription: "[CONFIDENTIAL \u2013 Internal Incident Report]"
+  documentContent: "PROJECT MIRAGE \u2014 Level -10 Facility\n\nIncident Date: 07/23/1995\nSubject
+    Involved: S-09\nIncident Type: Fatal Outcome\n\nIncident Summary:\nSubject S-09
+    was found deceased following unauthorized attempt to retrieve the access card.
+    Autopsy revealed death by severe self-inflicted trauma. Post-incident review
+    highlights critical lapses in fuse-storage security.\n\nObservations:\nPersistent
+    shadow hallucinations exacerbated paranoia. Prior exposure to recursive simulations
+    significantly degraded subject\u2019s mental stability.\n\nAction Taken:\nImmediate
+    reinforcement of fuse storage security protocols. Future key-item retrieval restricted
+    exclusively to controlled conditions.\n\nDocument Status: Highly Confidential
+    \u2013 Authorized MIRAGE personnel only."
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
