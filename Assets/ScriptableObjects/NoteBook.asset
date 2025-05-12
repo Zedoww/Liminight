@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8dd18755bad44a44b22ad6223bd1a2b, type: 3}
+  m_Name: NoteBook
+  m_EditorClassIdentifier: 
+  itemName: NoteBook
+  icon: {fileID: 21300000, guid: 696722df27de24341a24ee3bc6824ea4, type: 3}
+  prefab: {fileID: 0}
+  iconScale: 0.8
+  shortDescription: "A weathered medical file labeled \u2018PROJECT XX\u2019"
+  documentContent: "CONFIDENTIAL PATIENT RECORD\n\nPROJECT XX \u2013 Department:
+    MIRAGE\n\n\nPatient Name: Subject XX\nPatient ID: XX\nAdmission Date: 02/14/1994\nCurrent
+    Status: Unstable, continuous monitoring required.\n\n\nInitial Observations:\n\nPatient
+    transferred to the MIRAGE facility following repeated reports of persistent visual
+    and auditory hallucinations. Subject XX claims to perceive spatial anomalies
+    described as \u201Cimpossible rooms\u201D and \u201Cendless hallways.\u201D\n\nThe
+    subject exhibits severe nighttime agitation and recurring episodes of retrograde
+    amnesia, particularly after experimental sessions.\n\n\nExperiments Conducted
+    (MIRAGE Project):\nInitial Protocol (Phase 1)\nControlled administration of substance
+    MIR-47. Objective: Analyze perceptual plasticity. Initial results were promising,
+    but unforeseen side effects quickly emerged: acute paranoia, severe temporal
+    disorientation.\nDeep Immersion Phase (Phase 2)\nExtended immersion in the controlled
+    MIRAGE environment. Subject reports intense sensations of temporal and spatial
+    displacement. Severe dissociative episodes observed.\n\n\nChief Physician\u2019s
+    Report:\n\n\u201CSubject XX demonstrates heightened responsiveness to the MIRAGE
+    environment. The patient\u2019s spatial perceptions appear significantly compromised,
+    making it increasingly difficult for them to distinguish simulation from reality.
+    Close observation for escalating signs of instability is critical, given the
+    potential psychological risks posed by continued experimentation.\u201D\n\n\u2014
+    Dr. Alexandre Beaumont, MIRAGE Department\n\n\nAdditional Notes:\nAll verbal
+    interactions with the subject must be thoroughly documented.\nAvoid any explicit
+    mention of the true nature of the MIRAGE project in the presence of the patient.\nMaintain
+    prescribed medication: High-dose anxiolytics and sedatives to manage crisis episodes.\n\n\nStatus:
+    CONFIDENTIAL \u2013 Restricted to MIRAGE Department Only"
+  holdPositionOffset: {x: 0, y: 0, z: 0}
+  holdRotationOffset: {x: 0, y: 0, z: 0}
