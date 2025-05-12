@@ -42,19 +42,19 @@ public class InteractBehavior : MonoBehaviour
         inventoryUI = FindFirstObjectByType<InventoryUI>();
         
         // Injecter la référence de interactPrompt dans tous les DoorLock
-        if (interactPrompt != null)
-        {
-            DoorLock[] allDoorLocks = FindObjectsByType<DoorLock>(FindObjectsSortMode.None);
-            foreach (var doorLock in allDoorLocks)
-            {
-                doorLock.SetInteractPrompt(interactPrompt);
-            }
-            Debug.Log("InteractPrompt injected into " + allDoorLocks.Length + " DoorLocks");
-        }
-        else
-        {
-            Debug.LogError("InteractPrompt is null in InteractBehavior");
-        }
+        // if (interactPrompt != null)  // Cette section n'est plus nécessaire
+        // {
+        //     DoorLock[] allDoorLocks = FindObjectsByType<DoorLock>(FindObjectsSortMode.None);
+        //     foreach (var doorLock in allDoorLocks)
+        //     {
+        //         doorLock.SetInteractPrompt(interactPrompt); 
+        //     }
+        //     Debug.Log("InteractPrompt injected into " + allDoorLocks.Length + " DoorLocks");
+        // }
+        // else
+        // {
+        //     Debug.LogError("InteractPrompt is null in InteractBehavior");
+        // }
     }
 
     void Update()
@@ -133,27 +133,33 @@ public class InteractBehavior : MonoBehaviour
                         // Vérifier si la porte a un système de verrouillage par clé
                         if (hit.collider.TryGetComponent<DoorLock>(out var doorLock))
                         {
-                            if (doorOpener.IsLocked())
+                            // NE PLUS GÉRER LE HIDE/SHOW DU PROMPT ICI POUR DOORLOCK
+                            // DoorLock gère ses propres messages ("Door unlocked", "This door is locked")
+                            
+                            // On affiche "Use the key" seulement si la porte est verrouillée
+                            // ET que le joueur a la clé. Sinon, on ne touche pas au prompt.
+                            if (doorOpener.IsLocked() && inventory.Has(doorLock.GetRequiredKeyName()))
                             {
-                                string requiredKeyName = doorLock.GetRequiredKeyName();
-                                if (inventory.Has(requiredKeyName))
-                                    interactPrompt.SetText("Use the key");
-                                else
-                                    interactPrompt.Hide(); // Cache le texte si pas de clé
+                                 interactPrompt.SetText("Use the key");
+                                 // On n'appelle plus Show() ici, la condition externe (hitInteractable) le fait déjà
                             }
-                            else if (!doorLock.isUnlocked)
-                            {
-                                interactPrompt.SetText("Door unlocked");
-                                doorLock.isUnlocked = true;
-                            }
-                            else
-                            {
-                                interactPrompt.Hide();
-                            }
+                            // Dans les autres cas concernant DoorLock (verrouillé sans clé, déjà déverrouillé),
+                            // on laisse DoorLock gérer ses messages via HandleInteraction et sa coroutine,
+                            // donc on ne fait RIEN ici avec interactPrompt.
                         }
+                        // Pour les DoorOpener SANS DoorLock
                         else if (doorOpener.IsLocked())
                         {
-                            interactPrompt.Hide(); // Cache le texte pour les portes verrouillées
+                             // Optionnel : afficher un message générique ou cacher
+                             // Pour l'instant, on garde le comportement de cacher
+                            interactPrompt.Hide(); // Cache le texte pour les portes standard verrouillées
+                        }
+                        else
+                        {
+                            // Porte standard non verrouillée (ouverte ou fermée)
+                            // Peut-être afficher "Open/Close Door" ou cacher ?
+                            // Gardons le comportement de cacher pour l'instant.
+                             interactPrompt.Hide();
                         }
                     }
                     // Objets ramassables
@@ -183,16 +189,12 @@ public class InteractBehavior : MonoBehaviour
                 if (hit.collider.TryGetComponent<DoorOpener>(out var doorOpener))
                 {
                     // Vérifie si la porte a un DoorLock et est verrouillée
-                    if (hit.collider.TryGetComponent<DoorLock>(out var doorLock) && doorOpener.IsLocked())
+                    if (!doorOpener.IsLocked() || !hit.collider.TryGetComponent<DoorLock>(out _))
                     {
-                        // Affiche un message que la porte est verrouillée
-                        interactPrompt.SetText("This door is locked");
-                        messageTimer = keyMessageDuration;
-                        forceShowMessage = true;
-                    }
-                    else if (!doorOpener.IsLocked())
-                    {
-                        // Seulement ouvrir si la porte n'est pas verrouillée
+                        // Seulement ouvrir si la porte n'est pas verrouillée OU si elle n'a pas de DoorLock.
+                        // Si elle a un DoorLock, DoorLock.HandleInteraction est appelé par DoorOpener
+                        // et gérera l'ouverture si la clé est présente.
+                        // Si elle est verrouillée par DoorLock, TryToggleDoor ne fera rien.
                         doorOpener.TryToggleDoor();
                     }
                 }
@@ -232,5 +234,20 @@ public class InteractBehavior : MonoBehaviour
     {
         yield return new WaitForSeconds(délai);
         porte.TryToggleDoor();
+    }
+
+    public void ShowTemporaryMessage(string text, float duration)
+    {
+        if (interactPrompt != null)
+        {
+            interactPrompt.SetText(text);
+            interactPrompt.Show();
+            messageTimer = duration;
+            forceShowMessage = true;
+        }
+        else
+        {
+            Debug.LogError("InteractPrompt is not assigned in InteractBehavior, cannot show temporary message.");
+        }
     }
 }

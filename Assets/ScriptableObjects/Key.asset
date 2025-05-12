@@ -13,10 +13,15 @@ MonoBehaviour:
   m_Name: Key
   m_EditorClassIdentifier: 
   itemName: key
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 22b3b9543020c42a6aafc4dce7b0c678, type: 3}
   prefab: {fileID: 0}
-  iconScale: 1
-  shortDescription: 
-  documentContent: 
+  iconScale: 0.68
+  shortDescription: An aged, silver key. Cold to the touch.
+  documentContent: "A tarnished silver key, corroded by time and neglect. Its metallic
+    surface feels oddly cold. Discovered amidst the abandoned rooms of the hospital\u2019s
+    forgotten basement, it appears perfectly shaped for an old wooden door \u2014a
+    door whose existence feels oddly familiar, yet entirely uncertain. The key whispers
+    of secrets long sealed away. Perhaps it will unlock answers; perhaps something
+    more dreadful still."
   holdPositionOffset: {x: 0, y: 0, z: 0}
   holdRotationOffset: {x: 0, y: 0, z: 0}

@@ -139,38 +139,17 @@ public class DoorOpener : MonoBehaviour
     // Gère l'interaction avec la porte au clic
     private void HandleDoorInteraction()
     {
-        // Si la porte a un DoorLock, vérifier si le joueur a la clé
-        if (doorLock != null && isLocked && playerInventory != null)
+        // Si la porte a un DoorLock, déléguer l'interaction
+        if (doorLock != null)
         {
-            string requiredKeyName = doorLock.GetRequiredKeyName();
-            if (playerInventory.Has(requiredKeyName))
-            {
-                // Le joueur a la clé, on déverrouille et on ouvre la porte
-                isLocked = false;
-                StartCoroutine(AnimateDoor());
-                
-                // Optionnel: jouer un son de déverrouillage
-                AudioClip unlockSound = doorLock.GetUnlockSound();
-                if (unlockSound != null)
-                {
-                    audioSource.PlayOneShot(unlockSound);
-                }
-                
-                // Afficher message (via DoorLock)
-                doorLock.ShowUnlockMessage();
-                return;
-            }
-            else
-            {
-                // Le joueur n'a pas la clé, afficher le message
-                doorLock.ShowLockedMessage();
-                return;
-            }
+            doorLock.HandleInteraction(playerInventory);
         }
-        
-        // Si on arrive ici, soit la porte n'a pas de DoorLock,
-        // soit elle n'est pas verrouillée, donc on essaie de l'ouvrir normalement
-        TryToggleDoor();
+        // Sinon (pas de DoorLock ou déjà géré par DoorLock), 
+        // essayer d'ouvrir/fermer si elle n'est pas verrouillée
+        else
+        {
+             TryToggleDoor(); // Comportement standard si pas de DoorLock
+        }
     }
     
     // Méthode appelée par l'InputManager pour activer/désactiver les entrées
@@ -179,7 +158,8 @@ public class DoorOpener : MonoBehaviour
         inputEnabled = enable;
     }
 
-    private IEnumerator AnimateDoor()
+    // Rendre publique pour être appelée par DoorLock
+    public IEnumerator AnimateDoor()
     {
         isAnimating = true;
 

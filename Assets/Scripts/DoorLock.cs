@@ -1,4 +1,5 @@
 using UnityEngine;
+// using System.Collections; // Plus nécessaire pour la coroutine locale
 
 [RequireComponent(typeof(DoorOpener))]
 public class DoorLock : MonoBehaviour
@@ -13,8 +14,11 @@ public class DoorLock : MonoBehaviour
     
     private DoorOpener doorOpener;
     private AudioSource audioSource;
-    private InteractPromptUI interactPrompt;
+    // private InteractPromptUI interactPrompt; // Référence directe moins nécessaire
     public bool isUnlocked = false;
+    
+    // private Coroutine _hidePromptCoroutine = null; // Supprimé
+    private InteractBehavior interactBehavior; // Ajout référence InteractBehavior
     
     private void Start()
     {
@@ -39,8 +43,15 @@ public class DoorLock : MonoBehaviour
         audioSource.maxDistance = 10f;
         audioSource.playOnAwake = false;
         
-        // Trouver le prompt d'interaction
-        interactPrompt = FindFirstObjectByType<InteractPromptUI>();
+        // Trouver le script InteractBehavior (devrait être sur le joueur)
+        interactBehavior = FindFirstObjectByType<InteractBehavior>();
+        if (interactBehavior == null)
+        {
+            Debug.LogError("InteractBehavior not found in the scene for DoorLock on " + gameObject.name);
+        }
+        
+        // Trouver le prompt d'interaction - Gardé pour référence si nécessaire mais non utilisé directement
+        // interactPrompt = FindFirstObjectByType<InteractPromptUI>();
     }
     
     // Méthode pour récupérer le nom de la clé requise
@@ -61,80 +72,91 @@ public class DoorLock : MonoBehaviour
         return lockedSound;
     }
     
-    // Méthode pour afficher le message de déverrouillage
+    // Méthodes Show... supprimées car remplacées par appel à InteractBehavior
+    /*
     public void ShowUnlockMessage()
     {
-        if (interactPrompt != null)
-        {
-            interactPrompt.SetText("Door unlocked");
-            interactPrompt.Show();
-            Invoke("HidePrompt", messageDisplayTime);
-        }
-        
-        
+        DisplayPrompt("Door unlocked", messageDisplayTime);
     }
     
-    // Méthode pour afficher le message de porte verrouillée
     public void ShowLockedMessage()
     {
-        if (interactPrompt != null)
-        {
-            interactPrompt.SetText("This door is locked");
-            interactPrompt.Show();
-            Invoke("HidePrompt", messageDisplayTime);
-        }
-
+        DisplayPrompt("This door is locked", messageDisplayTime);
     }
     
-    // Cette méthode sera appelée par InteractBehavior
-    public bool TryUnlock(Inventory playerInventory)
+    // Nouvelle méthode pour gérer l'affichage et le masquage
+    private void DisplayPrompt(string message, float delay)
     {
-        if (playerInventory == null)
+       // ... Ancienne logique de coroutine ...
+    }
+
+    // Coroutine pour afficher le message puis le masquer
+    private IEnumerator ShowPromptCoroutine(string message, float delay)
+    {
+       // ... Ancienne logique de coroutine ...
+    }
+    */
+
+    // Méthode principale appelée par DoorOpener lors d'une interaction
+    public void HandleInteraction(Inventory playerInventory)
+    {
+        if (playerInventory == null) 
         {
-            return false;
+            Debug.LogWarning("Inventaire du joueur non trouvé pour DoorLock.");
+            return;
         }
-            
+
+        // Vérifier si InteractBehavior a été trouvé
+        if (interactBehavior == null)
+        {
+             Debug.LogError("InteractBehavior reference missing in DoorLock on " + gameObject.name);
+             return;
+        }
+
+        // Si déjà déverrouillé, on anime juste la porte
+        if (isUnlocked)
+        {
+            if(doorOpener != null)
+            {
+                 doorOpener.StartCoroutine(doorOpener.AnimateDoor());
+            }
+            return; 
+        }
+
         // Vérifie si le joueur a la clé requise
         bool hasKey = playerInventory.Has(requiredKeyName);
         
-        if (hasKey && !isUnlocked)
-        {
-            // Déverrouille la porte
-            doorOpener.Unlock();
-            isUnlocked = true;
+        if (hasKey)
+        {   
+            isUnlocked = true; 
+            doorOpener.Unlock(); 
             
-            // Joue le son de déverrouillage
-            if (unlockSound != null)
+            if (unlockSound != null && audioSource != null)
                 audioSource.PlayOneShot(unlockSound);
             
-            // Affiche un message de succès
-            ShowUnlockMessage();
+            // Affiche un message de succès via InteractBehavior
+            interactBehavior.ShowTemporaryMessage("Door unlocked", messageDisplayTime);
                 
-            return true;
+            if(doorOpener != null)
+            {
+                 doorOpener.StartCoroutine(doorOpener.AnimateDoor());
+            }
         }
         else
-        {
-            // Joue le son de porte verrouillée
-            if (lockedSound != null)
+        {   
+            if (lockedSound != null && audioSource != null)
                 audioSource.PlayOneShot(lockedSound);
                 
-            // Affiche un message 
-            ShowLockedMessage();
-                
-            return false;
+            // Affiche un message via InteractBehavior
+            interactBehavior.ShowTemporaryMessage("This door is locked", messageDisplayTime);
         }
     }
-    
-    // Cache le prompt après un délai
-    private void HidePrompt()
-    {
-        if (interactPrompt != null)
-            interactPrompt.Hide();
-    }
-    
-    // Méthode pour obtenir la référence directement
+
+    // Méthode pour obtenir la référence directement (Peut-être plus nécessaire)
+    /*
     public void SetInteractPrompt(InteractPromptUI prompt)
     {
         interactPrompt = prompt;
     }
+    */
 } 
