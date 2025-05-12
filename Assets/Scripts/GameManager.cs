@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         // Initialisation du jeu
-        Debug.Log("GameManager: Initialisation du jeu");
+        Debug.Log("GameManager: Game initialization");
         
         // S'assurer que les inputs sont activés au démarrage
         if (inputManager != null)

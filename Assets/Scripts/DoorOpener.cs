@@ -32,6 +32,9 @@ public class DoorOpener : MonoBehaviour
     private Quaternion closedRotation;
     private Quaternion openRotation;
     private bool isLocked;
+    
+    // Référence au DoorLock si présent
+    private DoorLock doorLock;
 
     private AudioSource audioSource;
 
@@ -42,6 +45,9 @@ public class DoorOpener : MonoBehaviour
     // Référence au menu pause pour vérifier si un menu est ouvert
     private PauseMenuManager pauseMenuManager;
     private InventoryUI inventoryUI;
+    
+    // Référence à l'inventaire du joueur pour vérifier la clé
+    private Inventory playerInventory;
     
     // Pour gérer l'activation/désactivation des entrées
     private bool inputEnabled = true;
@@ -63,11 +69,13 @@ public class DoorOpener : MonoBehaviour
         if (doorCollider == null)
         {
             doorCollider = gameObject.AddComponent<BoxCollider>();
-            Debug.Log("DoorOpener: BoxCollider ajouté automatiquement.");
         }
         
         // Trouver la caméra du joueur pour les vérifications de distance
         playerTransform = Camera.main.transform;
+        
+        // Récupérer le DoorLock s'il existe
+        doorLock = GetComponent<DoorLock>();
     }
     
     private void Start()
@@ -75,6 +83,13 @@ public class DoorOpener : MonoBehaviour
         // Récupérer les références aux gestionnaires de menu
         pauseMenuManager = FindFirstObjectByType<PauseMenuManager>();
         inventoryUI = FindFirstObjectByType<InventoryUI>();
+        
+        // Trouver l'inventaire du joueur
+        var player = FindFirstObjectByType<InteractBehavior>();
+        if (player != null)
+        {
+            playerInventory = player.inventory;
+        }
     }
 
     private void Update()
@@ -114,14 +129,47 @@ public class DoorOpener : MonoBehaviour
                 float distanceToPlayer = Vector3.Distance(hit.point, playerTransform.position);
                 if (distanceToPlayer <= maxInteractionDistance)
                 {
-                    TryToggleDoor();
-                }
-                else
-                {
-                    Debug.Log("Trop loin pour interagir avec la porte.");
+                    HandleDoorInteraction();
                 }
             }
         }
+    }
+    
+    // Gère l'interaction avec la porte au clic
+    private void HandleDoorInteraction()
+    {
+        // Si la porte a un DoorLock, vérifier si le joueur a la clé
+        if (doorLock != null && isLocked && playerInventory != null)
+        {
+            string requiredKeyName = doorLock.GetRequiredKeyName();
+            if (playerInventory.Has(requiredKeyName))
+            {
+                // Le joueur a la clé, on déverrouille et on ouvre la porte
+                isLocked = false;
+                StartCoroutine(AnimateDoor());
+                
+                // Optionnel: jouer un son de déverrouillage
+                AudioClip unlockSound = doorLock.GetUnlockSound();
+                if (unlockSound != null)
+                {
+                    audioSource.PlayOneShot(unlockSound);
+                }
+                
+                // Afficher message (via DoorLock)
+                doorLock.ShowUnlockMessage();
+                return;
+            }
+            else
+            {
+                // Le joueur n'a pas la clé, afficher le message
+                doorLock.ShowLockedMessage();
+                return;
+            }
+        }
+        
+        // Si on arrive ici, soit la porte n'a pas de DoorLock,
+        // soit elle n'est pas verrouillée, donc on essaie de l'ouvrir normalement
+        TryToggleDoor();
     }
     
     // Méthode appelée par l'InputManager pour activer/désactiver les entrées
@@ -177,9 +225,6 @@ public class DoorOpener : MonoBehaviour
     {
         if (isLocked)
         {
-            // Jouer un son de porte verrouillée ou feedback visuel
-            Debug.Log("Cette porte est verrouillée.");
-            // Tu peux ajouter ici un son de porte verrouillée
             return;
         }
         
@@ -190,15 +235,12 @@ public class DoorOpener : MonoBehaviour
     public void Unlock()
     {
         isLocked = false;
-        // Ajouter ici du son/feedback de déverrouillage
-        Debug.Log("Porte déverrouillée: " + doorID);
     }
     
     // Pour verrouiller à nouveau
     public void Lock()
     {
         isLocked = true;
-        Debug.Log("Porte verrouillée: " + doorID);
     }
     
     // Pour vérifier l'état actuel

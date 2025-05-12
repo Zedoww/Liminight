@@ -4,7 +4,7 @@ public class HeadBob : MonoBehaviour
 {
     public CharacterController controller;
 
-    [Header("Mouvement tête")]
+    [Header("Head Movement")]
     public float bobAmplitude = 0.08f;
     public float bobSpeedFactor = 4f;
     public float bobSideAmplitude = 0.04f;
@@ -12,7 +12,7 @@ public class HeadBob : MonoBehaviour
     public float idleBobSpeed = 1f;
     public float sprintBobMultiplier = 1.5f;
 
-    [Header("Son de pas")]
+    [Header("Footstep Sound")]
     [SerializeField] AudioClip footstepSound;
     [SerializeField] float footstepInterval = 0.45f;
     [SerializeField] float pitchVariation = 0.05f;
