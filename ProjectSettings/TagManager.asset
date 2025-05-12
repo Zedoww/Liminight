@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 3
   tags:
   - Button
+  - Fuse
   layers:
   - Default
   - TransparentFX

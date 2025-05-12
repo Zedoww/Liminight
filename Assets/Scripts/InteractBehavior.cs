@@ -98,6 +98,12 @@ public class InteractBehavior : MonoBehaviour
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         bool hitInteractable = Physics.Raycast(ray, out RaycastHit hit, pickupRange, pickableMask);
 
+        // Debug raycast hit for fusebox
+        if (hitInteractable && hit.collider.TryGetComponent<FuseBoxManager>(out var debugFuseBox))
+        {
+            Debug.Log("Raycast hit FuseBoxManager: " + hit.collider.gameObject.name);
+        }
+
         if (crosshairAnimator != null)
         {
             if (hitInteractable)
@@ -162,6 +168,11 @@ public class InteractBehavior : MonoBehaviour
                              interactPrompt.Hide();
                         }
                     }
+                    // Interaction avec le fusebox
+                    else if (hit.collider.TryGetComponent<FuseBoxManager>(out var fuseBox))
+                    {
+                        interactPrompt.SetText(fuseBox.GetInteractionText());
+                    }
                     // Objets ramassables
                     else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                     {
@@ -203,11 +214,9 @@ public class InteractBehavior : MonoBehaviour
             // Interaction avec touche F pour les portes verrouillées et les objets à ramasser
             if (Input.GetKeyDown(KeyCode.F))
             {
-                if (hit.collider.TryGetComponent<CardReader>(out var cardReader))
-                {
-                    return;
-                }
-                else if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
+                Debug.Log("F key pressed while looking at an interactable");
+                
+                if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                 {
                     if (inventory.Add(holder.itemData))
                     {
@@ -225,6 +234,19 @@ public class InteractBehavior : MonoBehaviour
                                 fl.OnEquip();
                         }
                     }
+                }
+                else if (hit.collider.TryGetComponent<CardReader>(out var cardReader))
+                {
+                    return;
+                }
+                else if (hit.collider.TryGetComponent<DoorLock>(out var doorLock))
+                {
+                    // ... existing code ...
+                }
+                else if (hit.collider.TryGetComponent<FuseBoxManager>(out var fuseBox))
+                {
+                    Debug.Log("Calling HandleInteraction on FuseBoxManager");
+                    fuseBox.HandleInteraction();
                 }
             }
         }
