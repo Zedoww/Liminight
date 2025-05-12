@@ -14,7 +14,8 @@ public class DoorOpener : MonoBehaviour
     public float speed = 2f;               // Lerp speed
 
     [Header("Squeak sound")]
-    [SerializeField] private AudioClip squeakAudio;
+    [SerializeField] private AudioClip openAudio;     // Son d'ouverture
+    [SerializeField] private AudioClip closeAudio;    // Son de fermeture
     [SerializeField, Range(0f, .2f)] private float pitchVariation = 0.05f;
     [SerializeField, Range(0f, 1f)] private float volumeMin = 0.8f;
     [SerializeField, Range(0f, 1f)] private float volumeMax = 1f;
@@ -182,7 +183,9 @@ public class DoorOpener : MonoBehaviour
     {
         isAnimating = true;
 
-        PlaySqueak();   // Play once at the start of every open/close action
+        // Détermine si on ouvre ou ferme pour choisir le son
+        bool opening = !isOpen;
+        PlayDoorSound(opening); // Play sound based on action
 
         Quaternion startRotation  = transform.rotation;
         Quaternion targetRotation = isOpen ? closedRotation : openRotation;
@@ -199,14 +202,34 @@ public class DoorOpener : MonoBehaviour
         isAnimating = false;
     }
 
-    /// <summary>Plays the door squeak with random pitch & volume.</summary>
-    private void PlaySqueak()
+    /// <summary>Plays the door sound with random pitch & volume.</summary>
+    private void PlayDoorSound(bool opening)
     {
-        if (squeakAudio == null) return;
+        AudioClip clipToPlay = null;
+
+        // Choisir le clip basé sur l'action
+        if (opening)
+        {
+            clipToPlay = openAudio;
+        }
+        else
+        {
+            clipToPlay = closeAudio;
+        }
+
+        // Si le clip spécifique n'est pas défini, essayer l'autre
+        if (clipToPlay == null)
+        {
+            clipToPlay = opening ? closeAudio : openAudio;
+        }
+
+        // Si aucun clip n'est défini, ne rien faire
+        if (clipToPlay == null) return;
+
 
         audioSource.pitch  = Random.Range(1f - pitchVariation, 1f + pitchVariation);
         audioSource.volume = Random.Range(volumeMin, volumeMax);
-        audioSource.PlayOneShot(squeakAudio);
+        audioSource.PlayOneShot(clipToPlay);
     }
 
     /// <summary>Configures the AudioSource once, mirroring HeadBob settings.</summary>
