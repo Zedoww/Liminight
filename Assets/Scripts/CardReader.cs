@@ -12,32 +12,30 @@ public class CardReader : MonoBehaviour
 
     private bool isActivated = false;
     private Inventory playerInventory;
-    
-    // Pour les effets sonores et visuels
+
     [Header("Feedback")]
     [SerializeField] private AudioClip accessGrantedSound;
     [SerializeField] private AudioClip accessDeniedSound;
     [SerializeField] private GameObject successEffect;
+    [SerializeField] public GameObject RedLight;
+    [SerializeField] public GameObject GreenLight;
+
     private AudioSource audioSource;
-    
-    // Référence au menu pause pour vérifier si un menu est ouvert
     private PauseMenuManager pauseMenuManager;
     private InventoryUI inventoryUI;
-    
-    // Pour gérer l'activation/désactivation des entrées
+    private InteractBehavior interactBehavior;
     private bool inputEnabled = true;
 
     void Awake()
     {
-        // S'assure que le CardReader est sur le layer "Interactable"
         gameObject.layer = LayerMask.NameToLayer("Interactable");
     }
 
     void Start()
     {
         playerInventory = FindFirstObjectByType<Inventory>();
-        
-        // Si doorToUnlock n'est pas assigné, essayer de trouver une porte avec l'ID correspondant
+        interactBehavior = FindFirstObjectByType<InteractBehavior>();
+
         if (doorToUnlock == null)
         {
             DoorOpener[] allDoors = FindObjectsByType<DoorOpener>(FindObjectsSortMode.None);
@@ -50,22 +48,21 @@ public class CardReader : MonoBehaviour
                 }
             }
         }
-        
-        // Configurer l'audio source
+
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
-            
-        // Désactiver les effets visuels au démarrage
+
         if (successEffect != null)
             successEffect.SetActive(false);
-            
-        // Récupérer les références aux gestionnaires de menu
+
+        if (RedLight != null) RedLight.SetActive(true);
+        if (GreenLight != null) GreenLight.SetActive(false);
+
         pauseMenuManager = FindFirstObjectByType<PauseMenuManager>();
         inventoryUI = FindFirstObjectByType<InventoryUI>();
     }
-    
-    // Méthode appelée par l'InputManager pour activer/désactiver les entrées
+
     public void EnableInput(bool enable)
     {
         inputEnabled = enable;
@@ -73,48 +70,35 @@ public class CardReader : MonoBehaviour
 
     void Update()
     {
-        if (isActivated) return;
-        
-        // Si les entrées sont désactivées, ne rien faire
-        if (!inputEnabled)
+        if (isActivated || !inputEnabled)
             return;
-        
-        // Vérifier si un menu est ouvert
-        bool isAnyMenuOpen = false;
-        
-        if (pauseMenuManager != null)
-        {
-            isAnyMenuOpen = pauseMenuManager.IsOpen();
-        }
-        
-        if (inventoryUI != null && !isAnyMenuOpen)
-        {
-            isAnyMenuOpen = inventoryUI.IsOpen();
-        }
-        
-        // Ne pas traiter les interactions si un menu est ouvert
-        if (isAnyMenuOpen)
-        {
-            return;
-        }
 
-        // Raycast depuis le centre de l'écran
+        bool isAnyMenuOpen = false;
+
+        if (pauseMenuManager != null)
+            isAnyMenuOpen = pauseMenuManager.IsOpen();
+        if (inventoryUI != null && !isAnyMenuOpen)
+            isAnyMenuOpen = inventoryUI.IsOpen();
+        if (isAnyMenuOpen)
+            return;
+
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         if (Physics.Raycast(ray, out RaycastHit hit, 3f))
         {
-            // Vérifie si on regarde ce lecteur de carte
-            if (hit.collider.gameObject == gameObject)
+            if (hit.collider.gameObject == gameObject && Input.GetKeyDown(KeyCode.F))
             {
-                // Vérifie si le joueur a le badge requis
                 bool hasRequiredItem = playerInventory.Has(requiredItemName);
-
                 if (hasRequiredItem)
                 {
-                    // Vérifie l'input pour activer le lecteur
-                    if (Input.GetKeyDown(KeyCode.F))
-                    {
-                        ActivateReader();
-                    }
+                    ActivateReader();
+                }
+                else
+                {
+                    if (accessDeniedSound != null && audioSource != null)
+                        audioSource.PlayOneShot(accessDeniedSound);
+
+                    if (interactBehavior != null)
+                        interactBehavior.ShowTemporaryMessage("Access Denied - Card Required", 2f);
                 }
             }
         }
@@ -130,17 +114,18 @@ public class CardReader : MonoBehaviour
 
         isActivated = true;
 
-        // Effet sonore et visuel de succès
         if (accessGrantedSound != null && audioSource != null)
             audioSource.PlayOneShot(accessGrantedSound);
-            
+
         if (successEffect != null)
         {
             successEffect.SetActive(true);
-            Invoke("HideEffect", 3f); // Désactiver l'effet après 3 secondes
+            Invoke("HideEffect", 3f);
         }
 
-        // Déverrouiller ou ouvrir la porte
+        if (RedLight != null) RedLight.SetActive(false);
+        if (GreenLight != null) GreenLight.SetActive(true);
+
         if (unlockOnly)
         {
             doorToUnlock.Unlock();
@@ -148,21 +133,19 @@ public class CardReader : MonoBehaviour
         }
         else
         {
-            // Comportement précédent - ouvre directement la porte
             doorToUnlock.Unlock();
             doorToUnlock.TryToggleDoor();
         }
     }
-    
+
     void HideEffect()
     {
         if (successEffect != null)
             successEffect.SetActive(false);
     }
-    
-    // Méthode pour vérifier si le lecteur a déjà été activé
+
     public bool IsActivated()
     {
         return isActivated;
     }
-} 
+}
