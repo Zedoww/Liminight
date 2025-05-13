@@ -15,6 +15,12 @@ public class FuseBoxManager : MonoBehaviour
     public List<GameObject> lightsToTurnOn = new List<GameObject>();
     [Tooltip("GameObjects that will be turned OFF when fusebox is activated")]
     public List<GameObject> lightsToTurnOff = new List<GameObject>();
+    
+    [Header("Door Control")]
+    [Tooltip("Door that will close when fusebox is activated")]
+    public DoorOpener doorToClose;
+    [Tooltip("Delay before closing the door (seconds)")]
+    public float doorCloseDelay = 1.5f;
 
     [Header("Audio")]
     [Tooltip("Sound played when fusebox is activated")]
@@ -25,6 +31,8 @@ public class FuseBoxManager : MonoBehaviour
     [Header("Effects")]
     [Tooltip("Optional particle effect to play when activated")]
     public ParticleSystem activationEffect;
+    [Tooltip("Duration in seconds to play the particle effect")]
+    public float particleEffectDuration = 2f;
 
     private AudioSource audioSource;
     private bool isActivated = false;
@@ -67,6 +75,12 @@ public class FuseBoxManager : MonoBehaviour
             BoxCollider boxCollider = gameObject.AddComponent<BoxCollider>();
             boxCollider.size = new Vector3(1f, 1f, 0.2f);
             boxCollider.center = Vector3.zero;
+        }
+        
+        // Vérifier si la porte à fermer est assignée
+        if (doorToClose == null)
+        {
+            Debug.LogWarning("FuseBoxManager: Aucune porte n'a été assignée pour être fermée lors de l'activation!");
         }
     }
 
@@ -221,9 +235,11 @@ public class FuseBoxManager : MonoBehaviour
         if (audioSource != null && activationSound != null)
             audioSource.PlayOneShot(activationSound);
             
-        // Play particle effect if available
+        // Play particle effect for a limited time if available
         if (activationEffect != null)
-            activationEffect.Play();
+        {
+            StartCoroutine(PlayParticleEffectForDuration(activationEffect, particleEffectDuration));
+        }
 
         // Turn on specified GameObjects
         foreach (GameObject obj in lightsToTurnOn)
@@ -242,10 +258,54 @@ public class FuseBoxManager : MonoBehaviour
                 obj.SetActive(false);
             }
         }
+        
+        // Fermer la porte après un délai si configurée
+        if (doorToClose != null)
+        {
+            StartCoroutine(CloseTheDoorAfterDelay(doorToClose, doorCloseDelay));
+        }
 
         // Show message to player
         if (interactBehavior != null)
             interactBehavior.ShowTemporaryMessage("Fusebox activated. Power restored.", 3f);
+    }
+    
+    private IEnumerator CloseTheDoorAfterDelay(DoorOpener door, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        // Vérifier si la porte est verrouillée
+        if (door.IsLocked())
+        {
+            // Déverrouiller la porte d'abord si elle est verrouillée
+            door.Unlock();
+        }
+        
+        // On ne peut pas vérifier si la porte est en train de s'animer car isAnimating est privé
+        // Attendons un court instant pour s'assurer que tout effet précédent est terminé
+        yield return new WaitForSeconds(0.2f);
+        
+        // Essayer de fermer la porte
+        door.TryToggleDoor();
+        
+        Debug.Log("Door closed automatically after fusebox activation");
+    }
+    
+    private IEnumerator PlayParticleEffectForDuration(ParticleSystem effect, float duration)
+    {
+        // Assurez-vous que l'effet est arrêté au cas où
+        effect.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        
+        // Jouer l'effet
+        effect.Play(true);
+        
+        // Attendre la durée spécifiée
+        yield return new WaitForSeconds(duration);
+        
+        // Arrêter l'effet
+        effect.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+        
+        Debug.Log($"Particle effect stopped after {duration} seconds");
     }
     
     // This helps with debugging
