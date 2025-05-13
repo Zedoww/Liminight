@@ -59,30 +59,13 @@ public class MainMenuManager : MonoBehaviour
         quitButton?.onClick.AddListener(QuitGame);
         continueButton?.onClick.AddListener(ContinueGame); // New button for continuing game
 
-        // Add hover effects to all menu buttons
-        AddHoverEffectToButton(startButton);
-        AddHoverEffectToButton(settingsButton);
-        AddHoverEffectToButton(quitButton);
-        AddHoverEffectToButton(continueButton);
+        
 
         settingsPanel?.SetActive(false);
         mainMenuPanel?.SetActive(true);
         videoDisplay?.gameObject.SetActive(false);
     }
 
-    private void AddHoverEffectToButton(Button button)
-    {
-        if (button == null) return;
-        
-        // Check if button already has the hover effect component
-        if (button.GetComponent<MenuItemHoverEffect>() == null)
-        {
-            // Add hover effect component
-            MenuItemHoverEffect hoverEffect = button.gameObject.AddComponent<MenuItemHoverEffect>();
-            hoverEffect.hoverColor = Color.red;
-            hoverEffect.transitionDuration = 0.2f;
-        }
-    }
 
     void Update()
     {

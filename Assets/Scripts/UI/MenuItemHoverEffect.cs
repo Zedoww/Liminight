@@ -1,37 +1,48 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections;
 
-public class MenuItemHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class MenuItemHoverEffect : MonoBehaviour,
+                                   IPointerEnterHandler,
+                                   IPointerExitHandler,
+                                   IPointerClickHandler,
+                                   IDeselectHandler       // ‚Üê nouveau
 {
+    /* ---------- r√©glages ---------- */
     [Header("Color Settings")]
-    public Color normalColor = Color.white;   // <- couleur au repos
-    public Color hoverColor = Color.red;     // <- couleur au survol
+    public Color normalColor = Color.white;
+    public Color hoverColor = Color.red;
 
     [Header("Animation Settings")]
     public float transitionDuration = 0.2f;
-    public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    public AnimationCurve transitionCurve =
+        AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-    private TextMeshProUGUI tmp;
-    private Coroutine tween;
+    /* ---------- internes ---------- */
+    TextMeshProUGUI tmp;
+    Coroutine tween;
 
     void Awake()
     {
         tmp = GetComponentInChildren<TextMeshProUGUI>();
-
-        // On force la couleur au dÈmarrage pour Ítre s˚r quíelle est bien ´†normale†ª
-        if (tmp != null)
-            tmp.color = normalColor;
+        if (tmp) tmp.color = normalColor;
     }
 
-    public void OnPointerEnter(PointerEventData eventData) => StartTween(hoverColor);
-    public void OnPointerExit(PointerEventData eventData) => StartTween(normalColor);
+    /* ----- remettre la couleur quand on masque/affiche l‚Äôobjet ----- */
+    void OnEnable() { if (tmp) tmp.color = normalColor; }
+    void OnDisable() { if (tmp) tmp.color = normalColor; }
 
-    /* ---------- helpers ---------- */
+    /* ---------------- √©v√©nement souris / focus ---------------- */
+    public void OnPointerEnter(PointerEventData _) => StartTween(hoverColor);
+    public void OnPointerExit(PointerEventData _) => StartTween(normalColor);
+    public void OnPointerClick(PointerEventData _) => StartTween(normalColor);
+    public void OnDeselect(BaseEventData _) => StartTween(normalColor);
 
+    /* ---------------- helpers animation ---------------- */
     void StartTween(Color target)
     {
+        if (!tmp) return;
         if (tween != null) StopCoroutine(tween);
         tween = StartCoroutine(TweenColor(target));
     }
@@ -43,8 +54,9 @@ public class MenuItemHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointer
 
         while (t < 1f)
         {
-            t += Time.unscaledDeltaTime / transitionDuration;   // unscaled†!
-            tmp.color = Color.Lerp(start, target, transitionCurve.Evaluate(t));
+            t += Time.unscaledDeltaTime / transitionDuration; // menu en pause OK
+            tmp.color = Color.Lerp(start, target,
+                                   transitionCurve.Evaluate(t));
             yield return null;
         }
         tmp.color = target;
