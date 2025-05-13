@@ -1,113 +1,52 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 
 public class MenuItemHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Color Settings")]
-    [Tooltip("The color to transition to when hovering")]
-    public Color hoverColor = Color.red;
-    
-    [Tooltip("The original color of the text")]
-    private Color originalColor;
-    
+    public Color normalColor = Color.white;   // <- couleur au repos
+    public Color hoverColor = Color.red;     // <- couleur au survol
+
     [Header("Animation Settings")]
-    [Tooltip("Time in seconds for the color transition")]
     public float transitionDuration = 0.2f;
-    
-    [Tooltip("The curve that controls the transition animation")]
     public AnimationCurve transitionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    
-    // Reference to the text component
-    private TextMeshProUGUI textComponent;
-    private Text legacyTextComponent;
-    
-    // Coroutine references for smooth transitions
-    private Coroutine colorTransitionCoroutine;
-    
-    private void Awake()
+
+    private TextMeshProUGUI tmp;
+    private Coroutine tween;
+
+    void Awake()
     {
-        // Try to get TextMeshPro component first, if not found try legacy Text
-        textComponent = GetComponentInChildren<TextMeshProUGUI>();
-        if (textComponent == null)
-        {
-            legacyTextComponent = GetComponentInChildren<Text>();
-        }
-        
-        // Store the original color
-        if (textComponent != null)
-        {
-            originalColor = textComponent.color;
-        }
-        else if (legacyTextComponent != null)
-        {
-            originalColor = legacyTextComponent.color;
-        }
-        else
-        {
-            Debug.LogWarning("No text component found on " + gameObject.name);
-        }
+        tmp = GetComponentInChildren<TextMeshProUGUI>();
+
+        // On force la couleur au démarrage pour être sûr qu’elle est bien « normale »
+        if (tmp != null)
+            tmp.color = normalColor;
     }
-    
-    public void OnPointerEnter(PointerEventData eventData)
+
+    public void OnPointerEnter(PointerEventData eventData) => StartTween(hoverColor);
+    public void OnPointerExit(PointerEventData eventData) => StartTween(normalColor);
+
+    /* ---------- helpers ---------- */
+
+    void StartTween(Color target)
     {
-        // Stop any ongoing transitions
-        if (colorTransitionCoroutine != null)
-        {
-            StopCoroutine(colorTransitionCoroutine);
-        }
-        
-        // Start the transition to hover color
-        colorTransitionCoroutine = StartCoroutine(TransitionColor(originalColor, hoverColor));
+        if (tween != null) StopCoroutine(tween);
+        tween = StartCoroutine(TweenColor(target));
     }
-    
-    public void OnPointerExit(PointerEventData eventData)
+
+    IEnumerator TweenColor(Color target)
     {
-        // Stop any ongoing transitions
-        if (colorTransitionCoroutine != null)
+        Color start = tmp.color;
+        float t = 0f;
+
+        while (t < 1f)
         {
-            StopCoroutine(colorTransitionCoroutine);
-        }
-        
-        // Start the transition back to original color
-        colorTransitionCoroutine = StartCoroutine(TransitionColor(hoverColor, originalColor));
-    }
-    
-    private IEnumerator TransitionColor(Color fromColor, Color toColor)
-    {
-        float elapsedTime = 0;
-        
-        while (elapsedTime < transitionDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float normalizedTime = elapsedTime / transitionDuration;
-            float curveValue = transitionCurve.Evaluate(normalizedTime);
-            
-            Color newColor = Color.Lerp(fromColor, toColor, curveValue);
-            
-            // Apply the new color to the appropriate text component
-            if (textComponent != null)
-            {
-                textComponent.color = newColor;
-            }
-            else if (legacyTextComponent != null)
-            {
-                legacyTextComponent.color = newColor;
-            }
-            
+            t += Time.unscaledDeltaTime / transitionDuration;   // unscaled !
+            tmp.color = Color.Lerp(start, target, transitionCurve.Evaluate(t));
             yield return null;
         }
-        
-        // Ensure we end up with the exact target color
-        if (textComponent != null)
-        {
-            textComponent.color = toColor;
-        }
-        else if (legacyTextComponent != null)
-        {
-            legacyTextComponent.color = toColor;
-        }
+        tmp.color = target;
     }
-} 
+}

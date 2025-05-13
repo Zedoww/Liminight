@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class PauseMenuManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class PauseMenuManager : MonoBehaviour
     public Button resumeButton;
     public Button settingsButton;
     public Button inventoryButton;
+    public Button quitButton;
 
     [Header("Fade")]
     public float fadeDuration = 0.3f;
@@ -31,6 +33,8 @@ public class PauseMenuManager : MonoBehaviour
         resumeButton.onClick.AddListener(ResumeGame);
         settingsButton.onClick.AddListener(OpenSettings);
         inventoryButton.onClick.AddListener(OpenInventory);
+        quitButton.onClick.AddListener(QuitToMainMenu);
+
 
         pauseMenu.SetActive(false);
         settingsPanel.SetActive(false);
@@ -106,6 +110,7 @@ public class PauseMenuManager : MonoBehaviour
         }
     }
 
+
     public void PauseGame()
     {
         isPaused = true;
@@ -119,6 +124,15 @@ public class PauseMenuManager : MonoBehaviour
         // Désactiver les entrées du joueur via l'InputManager
         if (inputManager != null)
             inputManager.DisableAllInputs();
+    }
+
+    public void QuitToMainMenu()
+    {
+        Time.timeScale = 1f; // Assurez-vous que le temps est rétabli avant de quitter
+        // Si le menu pause est ouvert, le fermer
+        if(inputManager != null)
+            inputManager.EnableAllInputs();
+        SceneManager.LoadScene("MainMenu");
     }
 
     public void ResumeGame()
