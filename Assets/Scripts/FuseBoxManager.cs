@@ -68,15 +68,7 @@ public class FuseBoxManager : MonoBehaviour
         } else {
             Debug.LogError("FuseBoxManager: 'Interactable' layer not found. Make sure to create this layer in Unity's Layer settings!");
         }
-        
-        // Make sure there's a collider for interaction
-        if (GetComponent<Collider>() == null) {
-            Debug.LogWarning("FuseBoxManager: No collider found on this GameObject. Adding a BoxCollider for interaction.");
-            BoxCollider boxCollider = gameObject.AddComponent<BoxCollider>();
-            boxCollider.size = new Vector3(1f, 1f, 0.2f);
-            boxCollider.center = Vector3.zero;
-        }
-        
+
         // Vérifier si la porte à fermer est assignée
         if (doorToClose == null)
         {
