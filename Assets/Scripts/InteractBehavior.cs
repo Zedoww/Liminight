@@ -214,7 +214,6 @@ public class InteractBehavior : MonoBehaviour
             // Interaction avec touche F pour les portes verrouillées et les objets à ramasser
             if (Input.GetKeyDown(KeyCode.F))
             {
-                Debug.Log("F key pressed while looking at an interactable");
                 
                 if (hit.collider.TryGetComponent<ItemDataHolder>(out var holder))
                 {

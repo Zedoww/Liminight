@@ -16,6 +16,9 @@ public class PNJScareTrigger : MonoBehaviour
     [Header("Sound Settings")]
     [Tooltip("The sound effect to play when the PNJ disappears.")]
     public AudioClip scareSound;
+    [Range(0f, 1f)]
+    [Tooltip("Volume du jumpscare (0 = muet, 1 = max)")]
+    public float scareVolume = 1f;
     private AudioSource audioSource;
 
     private bool triggered = false;
@@ -53,6 +56,7 @@ public class PNJScareTrigger : MonoBehaviour
         // Play the scare sound
         if (scareSound != null && audioSource != null)
         {
+            audioSource.volume = scareVolume;
             audioSource.PlayOneShot(scareSound);
         }
 

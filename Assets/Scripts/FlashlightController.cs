@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class FlashlightController : MonoBehaviour
 {
@@ -6,6 +7,7 @@ public class FlashlightController : MonoBehaviour
     [SerializeField] Light spot;
     [SerializeField] Inventory inventory;
     [SerializeField] PlayerController playerController;
+    [SerializeField] TutorialPopup tutorialPopup;
 
     [Header("Audio")]
     [SerializeField] AudioClip equipSound;
@@ -63,6 +65,10 @@ public class FlashlightController : MonoBehaviour
             
         if (playerController != null)
             previousPlayerPosition = playerController.transform.position;
+
+        // Trouver le TutorialPopup si non assigné
+        if (tutorialPopup == null)
+            tutorialPopup = FindFirstObjectByType<TutorialPopup>();
     }
 
     void Update()
@@ -186,7 +192,17 @@ public class FlashlightController : MonoBehaviour
     public void OnEquip()
     {
         //if (equipSound)
-            //audioSource.PlayOneShot(equipSound);
+        //    audioSource.PlayOneShot(equipSound);
+        if (tutorialPopup != null)
+        {
+            StartCoroutine(ShowTutorialWithDelay());
+        }
+    }
+
+    private IEnumerator ShowTutorialWithDelay()
+    {
+        yield return new WaitForSecondsRealtime(0.7f); // 0.7 secondes de délai
+        tutorialPopup.ShowTutorial("Press T to toggle the flashlight");
     }
 
     public void OnUnequip()
