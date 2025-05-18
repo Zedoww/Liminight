@@ -29,7 +29,7 @@ public class MenuItemHoverEffect : MonoBehaviour,
         if (tmp) tmp.color = normalColor;
     }
 
-    /* ----- remettre la couleur quand on masque/affiche l’objet ----- */
+    /* ----- remettre la couleur quand on masque/affiche l'objet ----- */
     void OnEnable() { if (tmp) tmp.color = normalColor; }
     void OnDisable() { if (tmp) tmp.color = normalColor; }
 
@@ -44,7 +44,16 @@ public class MenuItemHoverEffect : MonoBehaviour,
     {
         if (!tmp) return;
         if (tween != null) StopCoroutine(tween);
-        tween = StartCoroutine(TweenColor(target));
+        // Check if the gameObject is active before starting the coroutine
+        if (gameObject.activeInHierarchy)
+        {
+            tween = StartCoroutine(TweenColor(target));
+        }
+        else
+        {
+            // If inactive, just set the color directly
+            tmp.color = target;
+        }
     }
 
     IEnumerator TweenColor(Color target)

@@ -36,7 +36,7 @@ public class AudioSettingsUI : MonoBehaviour
         // Find the environment immersion script if not set
         if (environmentImmersion == null)
         {
-            environmentImmersion = FindObjectOfType<EnvironmentImmersion>();
+            environmentImmersion = FindFirstObjectByType<EnvironmentImmersion>();
             if (environmentImmersion == null)
             {
                 Debug.LogWarning("No EnvironmentImmersion script found in the scene!");
