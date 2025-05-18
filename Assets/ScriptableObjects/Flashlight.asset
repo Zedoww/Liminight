@@ -16,7 +16,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: e0502025b3af83145a62e7aa3a487b01, type: 3}
   prefab: {fileID: 3658807665086412745, guid: 7b9c72a48bc3db44dab0d35991d005ff, type: 3}
   iconScale: 0.8
-  shortDescription: Old flashlight. Flickers. Not meant to last.
+  shortDescription: Old flashlight. Flickers. Not meant to last. Press (T) to use.
   documentContent: "Dusty flashlight recovered near the elevator wreckage. Its beam
     is weak and unstable, flickering with every movement. Despite its age, it remains
     your only ally against the suffocating dark. Batteries seem unstable\u2014whether
